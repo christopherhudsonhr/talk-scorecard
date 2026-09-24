@@ -198,9 +198,14 @@
   function resultScreen() {
     var points = score();
     var max = maxScore();
+    // Phones and tablets get the share sheet. Computers get a plain download,
+    // since the Windows/Mac share window doesn't list LinkedIn.
+    var isPhone = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
     var preview = el("img", { class: "card-preview", alt: "Your results card" });
     var status = el("p", { class: "status", text: "Making your card..." });
-    var shareBtn = el("button", { class: "btn btn-primary", text: "Save / Share", disabled: "disabled" });
+    var mainBtn = el("button", { class: "btn btn-primary", disabled: "disabled",
+                                 text: isPhone ? "Save / Share" : "Download image" });
+    var saveBtn = isPhone ? el("button", { class: "btn btn-secondary", disabled: "disabled", text: "Save to my phone" }) : null;
     var captionBtn = el("button", { class: "btn btn-secondary", text: "Copy caption" });
     var file = null;
     var objectUrl = null;
@@ -210,11 +215,22 @@
       eventName: C.eventName || "", hashtag: C.hashtag || ""
     });
 
+    // Opens a new LinkedIn post in a new tab and copies the caption so it's ready to paste.
+    var linkedInBtn = isPhone ? null : el("a", {
+      class: "btn btn-secondary", target: "_blank", rel: "noopener noreferrer",
+      href: "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(caption),
+      text: "Open LinkedIn", onclick: function () { copyCaption(true); }
+    });
+
     show(el("section", { class: "screen" }, [
       el("h2", { text: "Nice work, " + state.name + "!" }),
       preview,
-      el("p", { class: "hint", text: "Tip: you can also press and hold the image to save it." }),
-      shareBtn,
+      el("p", { class: "hint", text: isPhone
+        ? "Tip: you can also press and hold the image to save it."
+        : "Download the image, then add it to your LinkedIn post with the photo button." }),
+      mainBtn,
+      saveBtn,
+      linkedInBtn,
       captionBtn,
       status,
       el("button", { class: "btn-link", text: "Start over", onclick: function () {
@@ -231,14 +247,15 @@
         file = new File([blob], C.fileName || "my-results.png", { type: "image/png" });
         objectUrl = URL.createObjectURL(blob);
         preview.src = objectUrl;
-        shareBtn.removeAttribute("disabled");
+        mainBtn.removeAttribute("disabled");
+        if (saveBtn) saveBtn.removeAttribute("disabled");
         status.textContent = "";
       }, "image/png");
     });
 
-    shareBtn.addEventListener("click", function () {
+    mainBtn.addEventListener("click", function () {
       if (!file) return;
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (isPhone && navigator.canShare && navigator.canShare({ files: [file] })) {
         navigator.share({ files: [file], title: C.cardHeadline || "My results" })
           .then(function () { status.textContent = "Shared!"; })
           .catch(function (err) {
@@ -249,17 +266,21 @@
         download();
       }
     });
+    if (saveBtn) saveBtn.addEventListener("click", function () { if (file) download(); });
 
     function download() {
       var a = el("a", { href: objectUrl, download: file.name });
       document.body.appendChild(a);
       a.click();
       a.remove();
-      status.textContent = "Downloaded. Check your downloads or photos.";
+      status.textContent = isPhone
+        ? "Saved to your Downloads. It should show up in your photos app too."
+        : "Downloaded. Look in your Downloads folder.";
     }
 
-    captionBtn.addEventListener("click", function () {
+    function copyCaption(quiet) {
       function fallback() {
+        if (quiet) return;
         var box = el("textarea", { class: "caption-box", readonly: "readonly" });
         box.value = caption;
         captionBtn.replaceWith(box);
@@ -273,7 +294,8 @@
       } else {
         fallback();
       }
-    });
+    }
+    captionBtn.addEventListener("click", function () { copyCaption(false); });
   }
 
   // ---------- The results card (drawn on a canvas, saved as PNG) ----------
