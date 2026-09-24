@@ -90,8 +90,8 @@
   function applyTheme() {
     var c = C.colors || {};
     var root = document.documentElement.style;
-    var map = { primary: "--primary", accent: "--accent", background: "--bg", text: "--text",
-                mutedText: "--muted", buttonText: "--button-text", cardBackground: "--surface" };
+    var map = { primary: "--primary", highlight: "--highlight", accent: "--accent", background: "--bg",
+                text: "--text", buttonText: "--button-text", cardBackground: "--surface" };
     Object.keys(map).forEach(function (key) { if (c[key]) root.setProperty(map[key], c[key]); });
     document.title = C.talkTitle || "Talk Scorecard";
   }
@@ -346,10 +346,10 @@
     return loadImage(showLogo ? C.logo : "").then(function (logo) {
       var S = CARD_SIZE;
       var col = C.colors || {};
-      var primary = col.primary || "#1a3c6e";
-      var accent = col.accent || "#f2a900";
+      var primary = col.primary || "#18324B";
+      var highlight = col.highlight || "#F2D44E";
       var text = col.text || "#1c2430";
-      var muted = col.mutedText || "#5b6678";
+      var accent = col.accent || "#456A82";
       var onPrimary = col.buttonText || "#ffffff";
       var pad = 80;
       var inner = S - pad * 2;
@@ -368,7 +368,7 @@
       // Header band + headline
       ctx.fillStyle = primary;
       ctx.fillRect(0, 0, S, 210);
-      ctx.fillStyle = accent;
+      ctx.fillStyle = highlight;
       ctx.fillRect(0, 210, S, 10);
       if (logo) {
         var lh = 90, lw = Math.min(260, logo.width * (lh / logo.height));
@@ -384,7 +384,7 @@
       fitText(ctx, state.name, "800", 92, 44, inner);
       ctx.fillText(state.name, S / 2, y);
       if (C.showTitleOnCard !== false && state.title) {
-        ctx.fillStyle = muted;
+        ctx.fillStyle = accent;
         fitText(ctx, state.title, "500", 38, 24, inner);
         ctx.fillText(state.title, S / 2, y + 60);
       }
@@ -397,16 +397,16 @@
       ctx.strokeStyle = "rgba(0,0,0,0.08)";
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
       if (pct > 0) {
-        ctx.strokeStyle = accent;
+        ctx.strokeStyle = highlight;
         ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct); ctx.stroke();
       }
-      ctx.fillStyle = muted;
+      ctx.fillStyle = accent;
       setFont(ctx, "700", 26);
       ctx.fillText(C.scoreLabel || "MY SCORE", cx, cy - 62);
       ctx.fillStyle = primary;
       fitText(ctx, String(points), "800", 130, 60, r * 1.6);
       ctx.fillText(String(points), cx, cy + 45);
-      ctx.fillStyle = muted;
+      ctx.fillStyle = accent;
       setFont(ctx, "600", 32);
       ctx.fillText("out of " + max, cx, cy + 95);
 
@@ -423,7 +423,7 @@
       }
 
       // Talk title
-      ctx.fillStyle = muted;
+      ctx.fillStyle = accent;
       setFont(ctx, "700", 24);
       ctx.fillText("FROM THE TALK", S / 2, y);
       ctx.fillStyle = text;
@@ -441,7 +441,7 @@
       fitText(ctx, footer, "600", 32, 20, inner);
       ctx.fillText(footer, S / 2, C.hashtag ? fy + 55 : fy + 75);
       if (C.hashtag) {
-        ctx.fillStyle = accent;
+        ctx.fillStyle = highlight;
         fitText(ctx, C.hashtag, "800", 34, 20, inner);
         ctx.fillText(C.hashtag, S / 2, fy + 102);
       }

@@ -1,10 +1,10 @@
 /* Colors are set from config.js at startup. These are just fallbacks. */
 :root {
-  --primary: #1a3c6e;
-  --accent: #f2a900;
-  --bg: #f4f6fa;
+  --primary: #18324B;
+  --highlight: #F2D44E;
+  --accent: #456A82;
+  --bg: #F4F4F2;
   --text: #1c2430;
-  --muted: #5b6678;
   --button-text: #ffffff;
   --surface: #ffffff;
   --radius: 16px;
@@ -44,7 +44,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--accent);
   margin: 0;
 }
 
@@ -53,7 +53,7 @@ h1 { font-size: 30px; }
 h2 { font-size: 24px; }
 
 .talk-title { font-size: 20px; font-weight: 700; color: var(--primary); margin: 0; }
-.lead { margin: 0; color: var(--muted); }
+.lead { margin: 0; color: var(--accent); }
 .spacer { flex: 1; }
 
 /* Buttons */
@@ -73,14 +73,14 @@ button { font: inherit; }
 }
 a.btn { text-align: center; text-decoration: none; }
 .btn-primary { background: var(--primary); color: var(--button-text); }
-.btn-secondary { background: var(--surface); color: var(--primary); border: 2px solid var(--primary); }
+.btn-secondary { background: var(--surface); color: var(--accent); border: 2px solid var(--accent); }
 .btn:disabled { opacity: 0.5; cursor: default; }
 .btn:active:not(:disabled) { transform: scale(0.98); }
 
 .btn-link {
   background: none;
   border: 0;
-  color: var(--muted);
+  color: var(--accent);
   font-size: 16px;
   padding: 12px;
   text-decoration: underline;
@@ -91,8 +91,8 @@ a.btn { text-align: center; text-decoration: none; }
 /* Progress */
 .progress-row { display: flex; align-items: center; gap: 12px; }
 .progress { flex: 1; height: 8px; background: rgba(0, 0, 0, 0.08); border-radius: 99px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.25s ease; }
-.progress-text { font-size: 14px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.progress-fill { height: 100%; background: var(--highlight); border-radius: 99px; transition: width 0.25s ease; }
+.progress-text { font-size: 14px; color: var(--accent); font-weight: 600; white-space: nowrap; }
 
 /* Answer options */
 .options { display: flex; flex-direction: column; gap: 12px; }
@@ -115,7 +115,7 @@ a.btn { text-align: center; text-decoration: none; }
 
 /* Form */
 label { font-weight: 700; display: block; margin-bottom: 6px; }
-.optional { font-weight: 400; color: var(--muted); }
+.optional { font-weight: 400; color: var(--accent); }
 input[type="text"] {
   width: 100%;
   min-height: 56px;
@@ -139,8 +139,8 @@ input[type="text"]:focus { outline: none; border-color: var(--primary); }
   background: var(--surface);
   display: block;
 }
-.hint { font-size: 14px; color: var(--muted); text-align: center; margin: 0; }
-.status { font-size: 15px; color: var(--muted); text-align: center; margin: 0; min-height: 1.4em; }
+.hint { font-size: 14px; color: var(--accent); text-align: center; margin: 0; }
+.status { font-size: 15px; color: var(--accent); text-align: center; margin: 0; min-height: 1.4em; }
 .caption-box {
   width: 100%;
   min-height: 110px;

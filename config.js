@@ -45,16 +45,16 @@ window.SCORECARD_CONFIG = {
 
   // ----------------------------------------------------------
   //  COLORS
-  //  Use hex codes (like "#1a3c6e"). Google "hex color picker" if you
+  //  Use hex codes (like "#18324B"). Google "hex color picker" if you
   //  need help finding one that matches your brand.
   // ----------------------------------------------------------
   colors: {
-    primary: "#1a3c6e",        // Main brand color: buttons, card header, footer
-    accent: "#f2a900",         // Highlight color: score ring, hashtag
-    background: "#f4f6fa",     // Page background on the phone
-    cardBackground: "#ffffff", // Background of the middle of the results card
-    text: "#1c2430",           // Main text color
-    mutedText: "#5b6678",      // Softer text (labels, small print)
+    primary: "#18324B",        // Main brand color: buttons, card header and footer, score number
+    highlight: "#F2D44E",      // Pop color: score ring, hashtag, header stripe, progress bar
+    accent: "#456A82",         // Supporting color: small labels, softer text, outline buttons
+    background: "#F4F4F2",     // Page background on the phone
+    cardBackground: "#ffffff", // Background of the middle of the results card and answer buttons
+    text: "#18324B",           // Main text color (questions, names)
     buttonText: "#ffffff"      // Text on primary-colored buttons
   },
 
