@@ -224,11 +224,13 @@
       eventName: C.eventName || "", hashtag: C.hashtag || ""
     });
 
-    // Opens a new LinkedIn post in a new tab and copies the caption so it's ready to paste.
+    // Opens a new LinkedIn post (caption filled in through the link) and copies the
+    // card image to the clipboard so it can be pasted in with Ctrl+V. Browsers don't
+    // let a website attach a file to another website's post, so this is the closest we get.
+    var linkedInUrl = "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(caption);
     var linkedInBtn = isPhone ? null : el("a", {
       class: "btn btn-secondary", target: "_blank", rel: "noopener noreferrer",
-      href: "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(caption),
-      text: "Open LinkedIn", onclick: function () { copyCaption(true); }
+      href: linkedInUrl, text: "Open LinkedIn", onclick: openLinkedIn
     });
 
     show(el("section", { class: "screen" }, [
@@ -236,7 +238,7 @@
       preview,
       el("p", { class: "hint", text: isPhone
         ? "Tip: you can also press and hold the image to save it."
-        : "Download the image, then add it to your LinkedIn post with the photo button." }),
+        : "Open LinkedIn copies your card. In the new post, press Ctrl+V (Cmd+V on a Mac) to add it." }),
       mainBtn,
       saveBtn,
       linkedInBtn,
@@ -285,6 +287,28 @@
       status.textContent = isPhone
         ? "Saved to your Downloads. It should show up in your photos app too."
         : "Downloaded. Look in your Downloads folder.";
+    }
+
+    function openLinkedIn(e) {
+      if (!file || !navigator.clipboard || !navigator.clipboard.write || !window.ClipboardItem) {
+        status.textContent = "In LinkedIn, click the photo button and pick " + (file ? file.name : "the image") + " from your Downloads.";
+        if (file) download();
+        return; // let the link open LinkedIn as normal
+      }
+      // Copy first, then open the tab. The copy fails if this page loses focus first.
+      e.preventDefault();
+      function open() {
+        var tab = window.open(linkedInUrl, "_blank");
+        if (tab) tab.opener = null;
+      }
+      navigator.clipboard.write([new ClipboardItem({ "image/png": file })]).then(function () {
+        status.textContent = "Card copied. In the LinkedIn post, press Ctrl+V (Cmd+V on a Mac) to add it.";
+        open();
+      }, function () {
+        download();
+        status.textContent = "In LinkedIn, click the photo button and pick " + file.name + " from your Downloads.";
+        open();
+      });
     }
 
     function copyCaption(quiet) {
