@@ -195,12 +195,21 @@
     show(form);
   }
 
+  // Touchscreen laptops count as computers here, so they get a plain download.
+  function isPhoneOrTablet() {
+    if (navigator.userAgentData && navigator.userAgentData.mobile) return true;
+    var ua = navigator.userAgent || "";
+    if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return true;
+    // iPads ask for the desktop site by default and pretend to be a Mac.
+    return /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+  }
+
   function resultScreen() {
     var points = score();
     var max = maxScore();
     // Phones and tablets get the share sheet. Computers get a plain download,
     // since the Windows/Mac share window doesn't list LinkedIn.
-    var isPhone = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    var isPhone = isPhoneOrTablet();
     var preview = el("img", { class: "card-preview", alt: "Your results card" });
     var status = el("p", { class: "status", text: "Making your card..." });
     var mainBtn = el("button", { class: "btn btn-primary", disabled: "disabled",
