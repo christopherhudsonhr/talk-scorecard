@@ -1,0 +1,154 @@
+/* Colors are set from config.js at startup. These are just fallbacks. */
+:root {
+  --primary: #1a3c6e;
+  --accent: #f2a900;
+  --bg: #f4f6fa;
+  --text: #1c2430;
+  --muted: #5b6678;
+  --button-text: #ffffff;
+  --surface: #ffffff;
+  --radius: 16px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 18px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  max-width: 560px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: max(20px, env(safe-area-inset-top)) 20px max(28px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+}
+
+.screen { display: flex; flex-direction: column; flex: 1; gap: 18px; }
+
+.logo { max-height: 56px; max-width: 60%; align-self: flex-start; }
+
+.eyebrow {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+h1, h2 { margin: 0; line-height: 1.2; }
+h1 { font-size: 30px; }
+h2 { font-size: 24px; }
+
+.talk-title { font-size: 20px; font-weight: 700; color: var(--primary); margin: 0; }
+.lead { margin: 0; color: var(--muted); }
+.spacer { flex: 1; }
+
+/* Buttons */
+button { font: inherit; }
+
+.btn {
+  display: block;
+  width: 100%;
+  min-height: 60px;
+  padding: 16px 20px;
+  border: 0;
+  border-radius: var(--radius);
+  font-size: 19px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.btn-primary { background: var(--primary); color: var(--button-text); }
+.btn-secondary { background: var(--surface); color: var(--primary); border: 2px solid var(--primary); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn:active:not(:disabled) { transform: scale(0.98); }
+
+.btn-link {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 16px;
+  padding: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  align-self: center;
+}
+
+/* Progress */
+.progress-row { display: flex; align-items: center; gap: 12px; }
+.progress { flex: 1; height: 8px; background: rgba(0, 0, 0, 0.08); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.25s ease; }
+.progress-text { font-size: 14px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+
+/* Answer options */
+.options { display: flex; flex-direction: column; gap: 12px; }
+.option {
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.option.selected { background: var(--primary); border-color: var(--primary); color: var(--button-text); }
+
+/* Form */
+label { font-weight: 700; display: block; margin-bottom: 6px; }
+.optional { font-weight: 400; color: var(--muted); }
+input[type="text"] {
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  font: inherit;
+  font-size: 18px; /* 16px+ stops iPhone from zooming in */
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius);
+}
+input[type="text"]:focus { outline: none; border-color: var(--primary); }
+.error { color: #b00020; font-size: 15px; margin: 6px 0 0; min-height: 1em; }
+
+/* Results */
+.card-preview {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  background: var(--surface);
+  display: block;
+}
+.hint { font-size: 14px; color: var(--muted); text-align: center; margin: 0; }
+.status { font-size: 15px; color: var(--muted); text-align: center; margin: 0; min-height: 1.4em; }
+.caption-box {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px;
+  font: inherit;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+.noscript, .config-error { padding: 24px; }
+.config-error { background: #fff3f3; border: 2px solid #b00020; border-radius: var(--radius); }
