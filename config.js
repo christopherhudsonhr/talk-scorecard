@@ -27,7 +27,7 @@ window.SCORECARD_CONFIG = {
   // ----------------------------------------------------------
   talkTitle: "The Transformative AI Adoption Playbook HR Actually Needs",
   speakerName: "Christopher Hudson",
-  speakerCredentials: "SHRM-SCP, Assoc. CIPD",  // Shown after your name on the card. "" to hide.
+  speakerCredentials: "SHRM-SCP, Associate CIPD",  // Shown after your name on the card. "" to hide.
   eventName: "HR Tampa Annual Conference and Expo",
   eventDate: "October 2, 2026",    // Any format you like. It's shown exactly as typed.
   hashtag: "#YourHashtag",         // Include the #. Leave as "" to hide it.
