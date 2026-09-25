@@ -188,10 +188,11 @@
 
   function introScreen() {
     var intro = C.intro || {};
-    show(el("section", { class: "screen" }, [
+    show(el("section", { class: "screen intro" }, [
       C.logo ? el("img", { class: "logo", src: C.logo, alt: "" }) : null,
       el("p", { class: "eyebrow", text: [C.eventName, C.eventDate].filter(Boolean).join(" · ") }),
       el("p", { class: "talk-title", text: C.talkTitle }),
+      welcomeImage(intro.image),
       el("h1", { text: intro.heading || "Let's get started" }),
       el("p", { class: "lead", text: intro.text || "" }),
       el("div", { class: "spacer" }),
@@ -204,6 +205,16 @@
         else unlockScreen();
       } })
     ]));
+  }
+
+  // <picture> with a WebP and a PNG backup. Browsers that can show WebP only download that one.
+  function welcomeImage(img) {
+    if (!img || !(img.webp || img.png)) return null;
+    var picture = el("picture", { class: "welcome-image" + (img.style === "card" ? " is-card" : "") }, [
+      img.webp && img.png ? el("source", { srcset: img.webp, type: "image/webp" }) : null,
+      el("img", { src: img.png || img.webp, alt: img.alt || "", decoding: "async" })
+    ]);
+    return picture;
   }
 
   function rightTalkScreen() {

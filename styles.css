@@ -243,3 +243,42 @@ textarea.feedback-box:focus { outline: none; border-color: var(--primary); }
 
 /* Message lines take no space until there's something to say */
 .status:empty, .error:empty { display: none; }
+
+/* Welcome picture: grows into whatever room is free on the start page (up to
+   a limit), so the headline and Start button always fit without scrolling. */
+.welcome-image {
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+  flex: 3 1 0;
+  min-height: 96px;
+  max-height: 280px;
+}
+.welcome-image img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.welcome-image.is-card {
+  align-self: center;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  padding: 12px 28px;
+}
+
+/* Shorter phones: tighten the start page a little. */
+@media (max-height: 700px) {
+  .intro { gap: 12px; }
+  .intro .eyebrow { font-size: 12px; }
+  .intro .talk-title { font-size: 17px; }
+  .intro h1 { font-size: 26px; }
+  .intro .lead { font-size: 16px; }
+  .intro .disclaimer { font-size: 13px; padding: 8px 12px; }
+  .intro .btn { min-height: 54px; padding: 12px 20px; }
+}
+@media (max-height: 600px) {
+  #app { padding-top: 12px; padding-bottom: 14px; }
+}

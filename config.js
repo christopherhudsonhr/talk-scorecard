@@ -63,6 +63,17 @@ window.SCORECARD_CONFIG = {
   //  START SCREEN WORDING
   // ----------------------------------------------------------
   intro: {
+    // Picture shown above the headline. Give a WebP (small, loads fast) and a PNG
+    // backup for older phones. Keep the image about 600px tall or less.
+    // Leave both as "" for no picture.
+    image: {
+      webp: "christopher.webp",
+      png: "christopher.png",
+      alt: "Cartoon of Christopher Hudson saluting.",
+      // "plain" sits right on the page background (use an image with a transparent background).
+      // "card"  puts it on a white rounded card, like the results card.
+      style: "plain"
+    },
     heading: "Let's see where you land",
     text: "A few quick questions. Tap an answer to move on.",
     // Privacy note shown in a box above the start button. Leave as "" to hide it.
