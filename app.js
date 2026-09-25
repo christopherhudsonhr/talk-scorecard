@@ -32,10 +32,12 @@
     window.scrollTo(0, 0);
   }
 
-  function maxScore() {
-    return C.questions.reduce(function (sum, q) {
-      return sum + Math.max.apply(null, q.options.map(function (o) { return Number(o.points) || 0; }));
-    }, 0);
+  // Lowest and highest scores anyone can get with the questions in config.js.
+  function scoreRange() {
+    return C.questions.reduce(function (range, q) {
+      var pts = q.options.map(function (o) { return Number(o.points) || 0; });
+      return { min: range.min + Math.min.apply(null, pts), max: range.max + Math.max.apply(null, pts) };
+    }, { min: 0, max: 0 });
   }
 
   function score() {
@@ -44,12 +46,70 @@
     }, 0);
   }
 
-  function resultLabel(points) {
-    var match = null;
-    (C.resultLabels || []).forEach(function (r) {
-      if (points >= r.min && (!match || r.min > match.min)) match = r;
+  function sortedStages() {
+    return C.stages.slice().sort(function (a, b) { return a.min - b.min; });
+  }
+
+  function stageFor(points) {
+    var stages = sortedStages();
+    for (var i = 0; i < stages.length; i++) {
+      if (points >= stages[i].min && points <= stages[i].max) return { stage: stages[i], index: i, count: stages.length };
+    }
+    return null;
+  }
+
+  function isWhole(n) { return typeof n === "number" && Math.floor(n) === n; }
+
+  // Checks that the stages cover every possible score with no gaps or overlaps,
+  // and explains in plain words how to fix anything that's off.
+  function stageProblems() {
+    var problems = [];
+    if (!Array.isArray(C.stages) || !C.stages.length) return ["Add at least one stage to the stages list."];
+
+    C.questions.forEach(function (q, i) {
+      q.options.forEach(function (o) {
+        if (!isWhole(Number(o.points))) {
+          problems.push("Question " + (i + 1) + ', answer "' + o.text + '" is worth ' + o.points + " points. Points need to be whole numbers.");
+        }
+      });
     });
-    return match ? match.label : "";
+    C.stages.forEach(function (st, i) {
+      var label = st.name ? '"' + st.name + '"' : "Stage " + (i + 1);
+      if (!st.name) problems.push("Stage " + (i + 1) + " needs a name.");
+      if (!isWhole(st.min) || !isWhole(st.max)) problems.push(label + " needs a whole-number min and max.");
+      else if (st.min > st.max) problems.push(label + " has a min (" + st.min + ") bigger than its max (" + st.max + ").");
+    });
+    if (problems.length) return problems;
+
+    var range = scoreRange();
+    var stages = sortedStages();
+    var first = stages[0], last = stages[stages.length - 1];
+    if (first.min > range.min) {
+      problems.push("The lowest possible score is " + range.min + ', but the first stage starts at ' + first.min +
+        '. Set "' + first.name + '" min to ' + range.min + ".");
+    }
+    if (last.max < range.max) {
+      problems.push("The highest possible score is " + range.max + ', but the last stage ends at ' + last.max +
+        '. Set "' + last.name + '" max to ' + range.max + ".");
+    }
+    for (var i = 1; i < stages.length; i++) {
+      var prev = stages[i - 1], cur = stages[i];
+      if (cur.min > prev.max + 1) {
+        var missing = cur.min - 1 === prev.max + 1 ? "Score " + (prev.max + 1) + " doesn't" : "Scores " + (prev.max + 1) + " to " + (cur.min - 1) + " don't";
+        problems.push(missing + ' land in any stage. "' + prev.name +
+          '" ends at ' + prev.max + ' and "' + cur.name + '" starts at ' + cur.min + '. Set "' + cur.name + '" min to ' + (prev.max + 1) + ".");
+      } else if (cur.min <= prev.max) {
+        problems.push('"' + prev.name + '" (' + prev.min + " to " + prev.max + ') and "' + cur.name + '" (' + cur.min + " to " + cur.max +
+          ') overlap. Set "' + cur.name + '" min to ' + (prev.max + 1) + ".");
+      }
+    }
+    stages.forEach(function (st) {
+      if (st.max < range.min || st.min > range.max) {
+        problems.push('Nobody can land in "' + st.name + '" (' + st.min + " to " + st.max + "). Possible scores run from " +
+          range.min + " to " + range.max + ".");
+      }
+    });
+    return problems;
   }
 
   function fillTemplate(text, values) {
@@ -77,10 +137,11 @@
     else C.questions.forEach(function (q, i) {
       if (!q.options || !q.options.length) problems.push("Question " + (i + 1) + " has no options.");
     });
+    if (!problems.length) problems = stageProblems();
     if (problems.length) {
       show(el("div", { class: "config-error" }, [
         el("h2", { text: "Something's off in config.js" }),
-        el("p", { text: problems.join(" ") })
+        el("ul", {}, problems.map(function (p) { return el("li", { text: p }); }))
       ]));
       return false;
     }
@@ -269,7 +330,8 @@
 
   function resultScreen() {
     var points = score();
-    var max = maxScore();
+    var range = scoreRange();
+    var result = stageFor(points);
     // Phones and tablets get the share sheet. Computers get a plain download,
     // since the Windows/Mac share window doesn't list LinkedIn.
     var isPhone = isPhoneOrTablet();
@@ -283,7 +345,7 @@
     var objectUrl = null;
 
     var caption = fillTemplate(C.shareCaption, {
-      score: points, max: max, talkTitle: C.talkTitle || "", speakerName: C.speakerName || "",
+      stage: result.stage.name, score: points, max: range.max, talkTitle: C.talkTitle || "", speakerName: C.speakerName || "",
       eventName: C.eventName || "", hashtag: C.hashtag || ""
     });
 
@@ -298,6 +360,7 @@
 
     show(el("section", { class: "screen" }, [
       el("h2", { text: "Nice work, " + state.name + "!" }),
+      privateScore(points, range, result),
       preview,
       el("p", { class: "hint", text: isPhone
         ? "Tip: you can also press and hold the image to save it."
@@ -315,7 +378,7 @@
 
     // Build the PNG right away so the share button can open the share sheet
     // instantly when tapped (iPhones require that).
-    drawCard(points, max).then(function (canvas) {
+    drawCard(points, range, result).then(function (canvas) {
       canvas.toBlob(function (blob) {
         if (!blob) { status.textContent = "Couldn't make the image on this browser. Try a screenshot."; return; }
         file = new File([blob], C.fileName || "my-results.png", { type: "image/png" });
@@ -394,6 +457,23 @@
     captionBtn.addEventListener("click", function () { copyCaption(false); });
   }
 
+  // The full score, shown only on this screen. The card shows the stage.
+  function privateScore(points, range, result) {
+    var list = sortedStages().map(function (st, i) {
+      return el("li", { class: i === result.index ? "current" : "" }, [
+        el("span", { text: st.name }),
+        el("span", { class: "range", text: st.min + " to " + st.max })
+      ]);
+    });
+    return el("div", { class: "private-score" }, [
+      el("p", { class: "eyebrow", text: "Just for you" }),
+      el("p", { class: "private-line", text: "You scored " + points + " out of " + range.max + " points." }),
+      el("p", { class: "private-stage", text: "That puts you in the " + result.stage.name + " stage. " + (result.stage.description || "") }),
+      el("ul", { class: "stage-list" }, list),
+      C.showScoreOnCard ? null : el("p", { class: "hint", text: "Only you see your number. Your card shows your stage." })
+    ]);
+  }
+
   // ---------- The results card (drawn on a canvas, saved as PNG) ----------
 
   function setFont(ctx, weight, size) { ctx.font = weight + " " + size + "px " + FONT; }
@@ -428,7 +508,21 @@
     return lines;
   }
 
-  function drawCard(points, max) {
+  // If text wraps onto exactly two lines, split it so both lines are about the
+  // same width instead of leaving one word hanging on the second line.
+  function balanceLines(ctx, lines, maxWidth) {
+    if (lines.length !== 2 || /…$/.test(lines[1])) return lines;
+    var words = (lines[0] + " " + lines[1]).split(" ");
+    var best = lines, bestWidth = Infinity;
+    for (var i = 1; i < words.length; i++) {
+      var a = words.slice(0, i).join(" "), b = words.slice(i).join(" ");
+      var w = Math.max(ctx.measureText(a).width, ctx.measureText(b).width);
+      if (w <= maxWidth && w < bestWidth) { best = [a, b]; bestWidth = w; }
+    }
+    return best;
+  }
+
+  function drawCard(points, range, result) {
     var showLogo = C.logo && C.showLogoOnCard;
     return loadImage(showLogo ? C.logo : "").then(function (logo) {
       var S = CARD_SIZE;
@@ -438,8 +532,9 @@
       var text = col.text || "#1c2430";
       var accent = col.accent || "#456A82";
       var onPrimary = col.buttonText || "#ffffff";
-      var pad = 80;
-      var inner = S - pad * 2;
+      var inner = S - 160;
+      var headerH = 190;
+      var stage = result.stage;
 
       var canvas = document.createElement("canvas");
       canvas.width = S;
@@ -452,75 +547,22 @@
       ctx.fillStyle = col.cardBackground || "#ffffff";
       ctx.fillRect(0, 0, S, S);
 
-      // Header band + headline
+      // 1. Header bar + headline, with the yellow line under it
+      var headline = C.cardHeadline || "Here are my results!";
       ctx.fillStyle = primary;
-      ctx.fillRect(0, 0, S, 210);
+      ctx.fillRect(0, 0, S, headerH);
       ctx.fillStyle = highlight;
-      ctx.fillRect(0, 210, S, 10);
+      ctx.fillRect(0, headerH, S, 10);
       if (logo) {
-        var lh = 90, lw = Math.min(260, logo.width * (lh / logo.height));
+        var lw = Math.min(240, logo.width * (80 / logo.height));
         ctx.drawImage(logo, 40, 40, lw, lw * (logo.height / logo.width));
       }
       ctx.fillStyle = onPrimary;
-      fitText(ctx, C.cardHeadline || "Here are my results!", "800", 80, 40, logo ? inner - 240 : inner);
-      ctx.fillText(C.cardHeadline || "Here are my results!", S / 2, 138);
+      fitText(ctx, headline, "800", 76, 40, logo ? inner - 240 : inner);
+      ctx.fillText(headline, S / 2, 124);
 
-      // Name + optional title/company
-      var y = 330;
-      ctx.fillStyle = text;
-      fitText(ctx, state.name, "800", 92, 44, inner);
-      ctx.fillText(state.name, S / 2, y);
-      if (C.showTitleOnCard !== false && state.title) {
-        ctx.fillStyle = accent;
-        fitText(ctx, state.title, "500", 38, 24, inner);
-        ctx.fillText(state.title, S / 2, y + 60);
-      }
-
-      // Score ring
-      var cx = S / 2, cy = 610, r = 150;
-      var pct = max > 0 ? Math.max(0, Math.min(1, points / max)) : 0;
-      ctx.lineWidth = 26;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "rgba(0,0,0,0.08)";
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-      if (pct > 0) {
-        ctx.strokeStyle = highlight;
-        ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct); ctx.stroke();
-      }
-      ctx.fillStyle = accent;
-      setFont(ctx, "700", 26);
-      ctx.fillText(C.scoreLabel || "MY SCORE", cx, cy - 62);
-      ctx.fillStyle = primary;
-      fitText(ctx, String(points), "800", 130, 60, r * 1.6);
-      ctx.fillText(String(points), cx, cy + 45);
-      ctx.fillStyle = accent;
-      setFont(ctx, "600", 32);
-      ctx.fillText("out of " + max, cx, cy + 95);
-
-      // Optional score-range label
-      y = cy + r + 70;
-      var label = resultLabel(points);
-      if (label) {
-        ctx.fillStyle = primary;
-        fitText(ctx, label, "800", 50, 28, inner);
-        ctx.fillText(label, S / 2, y);
-        y += 70;
-      } else {
-        y += 10;
-      }
-
-      // Talk title
-      ctx.fillStyle = accent;
-      setFont(ctx, "700", 24);
-      ctx.fillText("FROM THE TALK", S / 2, y);
-      ctx.fillStyle = text;
-      setFont(ctx, "700", 42);
-      wrapText(ctx, C.talkTitle || "", inner, label ? 1 : 2).forEach(function (line, n) {
-        ctx.fillText(line, S / 2, y + 56 + n * 52);
-      });
-
-      // Footer band: speaker + credentials, then event · date, then hashtag.
-      // The band grows or shrinks to fit however many lines there are.
+      // 5. Footer (drawn first so we know how much room is left in the middle):
+      //    speaker + credentials, event · date, hashtag. It sizes itself to its lines.
       var speaker = [C.speakerName, C.speakerCredentials].filter(Boolean).join(", ");
       var footerLines = [
         { text: speaker, weight: "700", size: 34, color: onPrimary },
@@ -536,6 +578,79 @@
         fitText(ctx, line.text, line.weight, line.size, 18, inner);
         ctx.fillText(line.text, S / 2, fy + footPad + (n + 1) * lineH - 10);
       });
+
+      // Middle section: stacked blocks, centered between the yellow line and the footer.
+      setFont(ctx, "700", 40);
+      var titleLines = balanceLines(ctx, wrapText(ctx, C.talkTitle || "", inner, 2), inner);
+      var company = C.showTitleOnCard !== false ? state.title : "";
+      var r = 150;
+      var blocks = [
+        // 2. Talk label + title
+        { h: 20, gap: 18, draw: function (y) {
+          ctx.fillStyle = accent; setFont(ctx, "700", 24);
+          ctx.fillText("FROM THE TALK", S / 2, y + 18);
+        } },
+        { h: titleLines.length * 50 - 20, gap: 50, draw: function (y) {
+          ctx.fillStyle = text; setFont(ctx, "700", 40);
+          titleLines.forEach(function (line, n) { ctx.fillText(line, S / 2, y + 29 + n * 50); });
+        } },
+        // 3. Name + company
+        { h: 58, gap: company ? 18 : 44, draw: function (y) {
+          ctx.fillStyle = text; fitText(ctx, state.name, "800", 80, 40, inner);
+          ctx.fillText(state.name, S / 2, y + 58);
+        } },
+        company ? { h: 26, gap: 44, draw: function (y) {
+          ctx.fillStyle = accent; fitText(ctx, company, "500", 34, 22, inner);
+          ctx.fillText(company, S / 2, y + 26);
+        } } : null,
+        // 4. Stage circle + one-line description
+        { h: r * 2 + 20, gap: 40, draw: function (y) { drawStageCircle(ctx, S / 2, y + r + 10, r); } },
+        stage.description ? { h: 22, gap: 0, draw: function (y) {
+          ctx.fillStyle = text; fitText(ctx, stage.description, "600", 32, 20, inner);
+          var line = wrapText(ctx, stage.description, inner, 1)[0];
+          ctx.fillText(line, S / 2, y + 23);
+        } } : null
+      ].filter(Boolean);
+      var total = blocks.reduce(function (sum, b, i) { return sum + b.h + (i < blocks.length - 1 ? b.gap : 0); }, 0);
+      var y = headerH + 10 + Math.max(24, (fy - headerH - 10 - total) / 2);
+      blocks.forEach(function (b) { b.draw(y); y += b.h + b.gap; });
+
+      function drawStageCircle(ctx, cx, cy, r) {
+        // The ring fills by stage: first stage is a small slice, top stage is a full circle.
+        var pct = (result.index + 1) / result.count;
+        ctx.lineWidth = 20;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(0,0,0,0.08)";
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = highlight;
+        ctx.beginPath();
+        if (pct >= 1) ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        else ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct);
+        ctx.stroke();
+
+        // Stage name: as big as fits, on up to two lines.
+        var maxW = r * 2 - 70, size = 56, lines;
+        for (; size >= 26; size -= 2) {
+          setFont(ctx, "800", size);
+          lines = wrapText(ctx, stage.name, maxW, 99);
+          if (lines.length <= 2 && lines.every(function (l) { return ctx.measureText(l).width <= maxW; })) break;
+        }
+        lines = balanceLines(ctx, lines.slice(0, 2), maxW);
+        var nameLh = Math.round(size * 1.1);
+        var showScore = !!C.showScoreOnCard;
+        var h = 16 + 16 + size * 0.72 + (lines.length - 1) * nameLh + (showScore ? 18 + 18 : 0);
+        var top = cy - h / 2;
+
+        ctx.fillStyle = accent; setFont(ctx, "700", 22);
+        ctx.fillText(C.stageLabel || "MY STAGE", cx, top + 16);
+        var base = top + 16 + 16 + size * 0.72;
+        ctx.fillStyle = primary; setFont(ctx, "800", size);
+        lines.forEach(function (l, n) { ctx.fillText(l, cx, base + n * nameLh); });
+        if (showScore) {
+          ctx.fillStyle = accent; setFont(ctx, "600", 24);
+          ctx.fillText(points + " of " + range.max + " points", cx, base + (lines.length - 1) * nameLh + 18 + 18);
+        }
+      }
 
       return canvas;
     });

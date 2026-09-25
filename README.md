@@ -8,7 +8,7 @@ Plain HTML, CSS, and JavaScript. No backend, no analytics, no cookies. Everythin
 
 | File | What it is |
 | --- | --- |
-| `config.js` | **The only file you edit per gig.** Talk title, event, date, hashtag, colors, logo, questions, scoring. |
+| `config.js` | **The only file you edit per gig.** Talk title, event, date, hashtag, colors, logo, questions, stages. |
 | `title-slide.jpg` | Your title slide, shown on the "Are you at the right talk?" screen. |
 | `index.html` | The page. |
 | `app.js` | The app logic and the card drawing. |
@@ -16,7 +16,7 @@ Plain HTML, CSS, and JavaScript. No backend, no analytics, no cookies. Everythin
 
 ## Setting up for a new talk
 
-1. Open `config.js` and update the basics, colors, and questions. The comments in the file walk through each part.
+1. Open `config.js` and update the basics, colors, questions, and stages. The comments in the file walk through each part. Then open the link once: if the stage ranges don't line up with the questions, the app shows exactly which numbers to fix.
 2. Export your title slide as a JPEG, save it next to `config.js` (replacing `title-slide.jpg`), and set a new unlock code under `unlock` in `config.js`.
 3. If you want a logo, drop the image file next to `config.js` and put its file name in `logo`.
 4. Commit and push. GitHub Pages updates in a minute or two.

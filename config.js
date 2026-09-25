@@ -109,28 +109,55 @@ window.SCORECARD_CONFIG = {
   // ----------------------------------------------------------
   //  RESULTS CARD WORDING
   // ----------------------------------------------------------
-  cardHeadline: "Here are my results!",  // Big text at the top of the card
-  scoreLabel: "MY SCORE",                // Small text above the score number
+  cardHeadline: "Here are my results!",  // Big text in the header bar at the top of the card
+  stageLabel: "MY STAGE",                // Small text above the stage name inside the circle
 
   // Show the person's title/company (if they typed one) under their name?
   showTitleOnCard: true,
 
-  // OPTIONAL: a label based on the score range, shown under the score.
-  // Leave the list empty [] to skip labels entirely.
-  // "min" is the lowest score that earns that label. Order doesn't matter.
-  // Example:
-  //   resultLabels: [
-  //     { min: 0,  label: "Just Getting Started" },
-  //     { min: 10, label: "Building Momentum" },
-  //     { min: 16, label: "Leading the Way" }
-  //   ],
-  resultLabels: [],
+  // Show the number score as small text inside the circle, like "12 of 16 points"?
+  // false keeps the card to just the stage. People always see their score
+  // privately on the results screen either way.
+  showScoreOnCard: false,
+
+  // ----------------------------------------------------------
+  //  STAGES
+  //  Instead of a raw number, the card shows which stage someone landed in.
+  //  Each stage has:
+  //    name:        short, shows big inside the circle (one or two words is best)
+  //    description: one short line shown under the circle
+  //    min / max:   the lowest and highest score that lands in this stage
+  //
+  //  You can have as many stages as you like (2 to 5 feels right).
+  //
+  //  THE RANGES HAVE TO COVER EVERY POSSIBLE SCORE, with no gaps and no
+  //  overlaps. The easy way to get it right:
+  //    1. Work out the lowest possible score (add up the lowest-point answer
+  //       from every question) and the highest (add up the highest-point
+  //       answers). With the sample questions below that's 0 to 16.
+  //    2. The first stage's min is the lowest score. The last stage's max is
+  //       the highest score.
+  //    3. Each stage's min is exactly 1 more than the stage before it's max.
+  //       (0-4, then 5-8, then 9-12... never 0-4 then 6-8, never 0-4 then 4-8.)
+  //
+  //  Points need to be whole numbers for this to work.
+  //
+  //  If something doesn't line up, the app shows a message on screen saying
+  //  exactly which numbers to fix, so you'll know before anyone scans the code.
+  //  Always open the link once after changing questions or stages.
+  // ----------------------------------------------------------
+  stages: [
+    { name: "Curious",   min: 0,  max: 4,  description: "Watching AI closely and ready to take a first step." },
+    { name: "Exploring", min: 5,  max: 8,  description: "Trying AI in pockets and learning what works." },
+    { name: "Building",  min: 9,  max: 12, description: "Turning early wins into real momentum." },
+    { name: "Leading",   min: 13, max: 16, description: "Setting the pace for how HR adopts AI." }
+  ],
 
   // Suggested post text people can copy with the "Copy caption" button.
-  // LinkedIn doesn't let apps pre-fill post text, so this gives them a head start.
   // These placeholders get swapped in automatically:
-  //   {score} {max} {talkTitle} {speakerName} {eventName} {hashtag}
-  shareCaption: "Just scored {score}/{max} during \"{talkTitle}\" with {speakerName} at {eventName}. {hashtag}",
+  //   {stage} {talkTitle} {speakerName} {eventName} {hashtag}
+  //   {score} {max}  (only use these if you want the number public)
+  shareCaption: "I landed in the {stage} stage during \"{talkTitle}\" with {speakerName} at {eventName}. {hashtag}",
 
   // File name for the saved image (no spaces works best).
   fileName: "my-results.png",

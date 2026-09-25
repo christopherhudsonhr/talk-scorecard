@@ -178,3 +178,29 @@ input.code-input {
   text-transform: uppercase;
 }
 input.code-input::placeholder { font-size: 18px; font-weight: 400; letter-spacing: normal; text-transform: none; }
+
+/* Private score panel on the results screen */
+.private-score {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.private-line { margin: 0; font-size: 22px; font-weight: 800; color: var(--primary); }
+.private-stage { margin: 0; color: var(--text); }
+.stage-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.stage-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 16px;
+  color: var(--accent);
+}
+.stage-list li.current { background: var(--primary); color: var(--button-text); font-weight: 700; }
+.stage-list .range { font-variant-numeric: tabular-nums; }
+.private-score .hint { text-align: left; }
+.config-error ul { padding-left: 20px; }
+.config-error li { margin-bottom: 8px; }
