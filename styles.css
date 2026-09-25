@@ -55,6 +55,15 @@ h2 { font-size: 24px; }
 .talk-title { font-size: 20px; font-weight: 700; color: var(--primary); margin: 0; }
 .lead { margin: 0; color: var(--accent); }
 .spacer { flex: 1; }
+.disclaimer {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--accent);
+  background: var(--surface);
+  border-left: 4px solid var(--highlight);
+  border-radius: 8px;
+}
 
 /* Buttons */
 button { font: inherit; }

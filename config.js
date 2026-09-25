@@ -63,7 +63,9 @@ window.SCORECARD_CONFIG = {
   // ----------------------------------------------------------
   intro: {
     heading: "Let's see where you land",
-    text: "A few quick questions. Tap an answer to move on. Nothing you enter leaves your phone.",
+    text: "A few quick questions. Tap an answer to move on.",
+    // Privacy note shown in a box above the start button. Leave as "" to hide it.
+    disclaimer: "Nothing you enter is saved permanently in this application. No data is collected.",
     startButton: "Let's go"
   },
 

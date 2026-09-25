@@ -107,6 +107,7 @@
       el("h1", { text: intro.heading || "Let's get started" }),
       el("p", { class: "lead", text: intro.text || "" }),
       el("div", { class: "spacer" }),
+      intro.disclaimer ? el("p", { class: "disclaimer", text: intro.disclaimer }) : null,
       el("button", { class: "btn btn-primary", text: intro.startButton || "Start", onclick: function () {
         state = { index: 0, answers: [], name: state.name, title: state.title };
         questionScreen();
