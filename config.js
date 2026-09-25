@@ -27,6 +27,7 @@ window.SCORECARD_CONFIG = {
   // ----------------------------------------------------------
   talkTitle: "Your Talk Title Goes Here",
   speakerName: "Christopher Hudson",
+  speakerCredentials: "SHRM-SCP, Assoc. CIPD",  // Shown after your name on the card. "" to hide.
   eventName: "Event Name 2026",
   eventDate: "October 15, 2026",   // Any format you like. It's shown exactly as typed.
   hashtag: "#YourHashtag",         // Include the #. Leave as "" to hide it.

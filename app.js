@@ -457,19 +457,23 @@
         ctx.fillText(line, S / 2, y + 56 + n * 52);
       });
 
-      // Footer band: speaker · event · date, then hashtag
-      var fy = 1070;
+      // Footer band: speaker + credentials, then event · date, then hashtag.
+      // The band grows or shrinks to fit however many lines there are.
+      var speaker = [C.speakerName, C.speakerCredentials].filter(Boolean).join(", ");
+      var footerLines = [
+        { text: speaker, weight: "700", size: 34, color: onPrimary },
+        { text: [C.eventName, C.eventDate].filter(Boolean).join("  ·  "), weight: "500", size: 28, color: onPrimary },
+        { text: C.hashtag, weight: "800", size: 32, color: highlight }
+      ].filter(function (line) { return line.text; });
+      var lineH = 44, footPad = 30;
+      var fy = S - footPad * 2 - footerLines.length * lineH;
       ctx.fillStyle = primary;
       ctx.fillRect(0, fy, S, S - fy);
-      var footer = [C.speakerName, C.eventName, C.eventDate].filter(Boolean).join("  ·  ");
-      ctx.fillStyle = onPrimary;
-      fitText(ctx, footer, "600", 32, 20, inner);
-      ctx.fillText(footer, S / 2, C.hashtag ? fy + 55 : fy + 75);
-      if (C.hashtag) {
-        ctx.fillStyle = highlight;
-        fitText(ctx, C.hashtag, "800", 34, 20, inner);
-        ctx.fillText(C.hashtag, S / 2, fy + 102);
-      }
+      footerLines.forEach(function (line, n) {
+        ctx.fillStyle = line.color;
+        fitText(ctx, line.text, line.weight, line.size, 18, inner);
+        ctx.fillText(line.text, S / 2, fy + footPad + (n + 1) * lineH - 10);
+      });
 
       return canvas;
     });
