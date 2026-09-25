@@ -158,7 +158,7 @@ window.SCORECARD_CONFIG = {
   //  Always open the link once after changing questions or stages.
   // ----------------------------------------------------------
   stages: [
-    { name: "Curious",   min: 0,  max: 4,  description: "Watching AI closely and ready to take a first step." },
+    { name: "Curious",   min: 0,  max: 4,  description: "Watching AI closely and getting ready to make a move." },
     { name: "Exploring", min: 5,  max: 8,  description: "Trying AI in pockets and learning what works." },
     { name: "Building",  min: 9,  max: 12, description: "Turning early wins into real momentum." },
     { name: "Leading",   min: 13, max: 16, description: "Setting the pace for how HR adopts AI." }
