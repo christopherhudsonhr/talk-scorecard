@@ -370,12 +370,16 @@
     var file = null;
     saveSession();
 
-    // Opens a new LinkedIn post with the hashtag filled in. It's a plain link on purpose
-    // (not the share sheet) so this button only ever goes to LinkedIn.
+    // On phones that can share files, Share to LinkedIn opens the share sheet with the
+    // card attached. That's the only way a website can hand a picture to the LinkedIn app,
+    // and the phone decides which apps are listed, so a note asks people to pick LinkedIn.
+    // Everywhere else it's a link to a new LinkedIn post with the hashtag filled in, plus
+    // a reminder to add the saved card, since a link can't carry the picture.
+    var canShareFiles = isPhone && canShareImages();
+    var linkedInUrl = "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(C.hashtag || "");
     var linkedInBtn = el("a", {
       class: "btn btn-primary", target: "_blank", rel: "noopener noreferrer",
-      href: "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(C.hashtag || ""),
-      text: share.linkedInButton || "Share to LinkedIn"
+      href: linkedInUrl, text: share.linkedInButton || "Share to LinkedIn"
     });
     var saveBtn = el("button", { class: "btn btn-secondary", disabled: "disabled",
                                  text: share.saveButton || "Save My Results to My Phone" });
@@ -386,7 +390,9 @@
       preview,
       isPhone ? el("p", { class: "hint", text: "Tip: you can also press and hold the image to save it." }) : null,
       linkedInBtn,
-      share.linkedInReminder ? el("p", { class: "attach-reminder" }, [paperclipIcon(), el("span", { text: share.linkedInReminder })]) : null,
+      canShareFiles
+        ? (share.linkedInPhoneHint ? el("p", { class: "hint", text: share.linkedInPhoneHint }) : null)
+        : (share.linkedInReminder ? el("p", { class: "attach-reminder" }, [paperclipIcon(), el("span", { text: share.linkedInReminder })]) : null),
       saveBtn,
       status,
       el("p", { class: "eyebrow section-label", text: "Stay connected" }),
@@ -414,6 +420,19 @@
       }, "image/png");
     });
 
+    linkedInBtn.addEventListener("click", function (e) {
+      if (!canShareFiles) return; // plain link to LinkedIn
+      e.preventDefault();
+      if (!file) { status.textContent = "Your card is still being made. Try again in a second."; return; }
+      navigator.share({ files: [file], title: C.cardHeadline || "My results" })
+        .then(function () { status.textContent = ""; })
+        .catch(function (err) {
+          if (err && err.name === "AbortError") return; // they closed the share sheet
+          window.open(linkedInUrl, "_blank", "noopener");
+          status.textContent = share.linkedInReminder || "";
+        });
+    });
+
     saveBtn.addEventListener("click", function () {
       if (!file) return;
       if (isPhone && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -437,6 +456,14 @@
         ? "Saved to your Downloads. It should show up in your photos app too."
         : "Downloaded. Look in your Downloads folder.";
     }
+  }
+
+  // True if this browser can put an image file into the share sheet.
+  function canShareImages() {
+    try {
+      return !!(navigator.canShare && navigator.share &&
+        navigator.canShare({ files: [new File([""], "test.png", { type: "image/png" })] }));
+    } catch (e) { return false; }
   }
 
   // A big button that opens a link in a new tab. Hidden if the link is blank.

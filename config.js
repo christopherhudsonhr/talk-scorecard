@@ -155,14 +155,18 @@ window.SCORECARD_CONFIG = {
 
   // ----------------------------------------------------------
   //  SHARING (buttons on the results screen)
-  //  "Share to LinkedIn" opens a new LinkedIn post with your hashtag
-  //  (from the top of this file) already filled in. LinkedIn doesn't let
-  //  websites attach photos, so the reminder below tells people to add
-  //  the card they saved.
+  //  "Share to LinkedIn" works two ways:
+  //   - On phones, it opens the phone's share list with the card already
+  //     attached. People tap LinkedIn and the picture goes right into a
+  //     new post. (The phone decides which apps are in that list.)
+  //   - On computers, it opens a new LinkedIn post with your hashtag
+  //     filled in. Websites can't attach photos there, so people see the
+  //     reminder to add the card they saved.
   // ----------------------------------------------------------
   share: {
     linkedInButton: "Share to LinkedIn",
-    linkedInReminder: "Add your saved results photo to the post.",  // Shown right under the LinkedIn button
+    linkedInPhoneHint: "Pick LinkedIn from the list that pops up.",   // Phones: shown under the LinkedIn button
+    linkedInReminder: "Add your saved results photo to the post.",  // Computers: shown under the LinkedIn button
     saveButton: "Save My Results to My Phone"
   },
 
