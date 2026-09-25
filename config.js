@@ -153,11 +153,18 @@ window.SCORECARD_CONFIG = {
     { name: "Leading",   min: 13, max: 16, description: "Setting the pace for how HR adopts AI." }
   ],
 
-  // Post text that's filled in when someone taps "Open LinkedIn" on a computer.
-  // These placeholders get swapped in automatically:
-  //   {stage} {talkTitle} {speakerName} {eventName} {hashtag}
-  //   {score} {max}  (only use these if you want the number public)
-  shareCaption: "I landed in the {stage} stage during \"{talkTitle}\" with {speakerName} at {eventName}. {hashtag}",
+  // ----------------------------------------------------------
+  //  SHARING (buttons on the results screen)
+  //  "Share to LinkedIn" opens a new LinkedIn post with your hashtag
+  //  (from the top of this file) already filled in. LinkedIn doesn't let
+  //  websites attach photos, so the reminder below tells people to add
+  //  the card they saved.
+  // ----------------------------------------------------------
+  share: {
+    linkedInButton: "Share to LinkedIn",
+    linkedInReminder: "Add your saved results photo to the post.",  // Shown right under the LinkedIn button
+    saveButton: "Save My Results to My Phone"
+  },
 
   // ----------------------------------------------------------
   //  STAY CONNECTED (buttons on the results screen)

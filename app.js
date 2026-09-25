@@ -145,12 +145,6 @@
     return problems;
   }
 
-  function fillTemplate(text, values) {
-    return String(text || "").replace(/\{(\w+)\}/g, function (all, key) {
-      return key in values ? values[key] : all;
-    }).replace(/\s+$/, "");
-  }
-
   function loadImage(src) {
     return new Promise(function (resolve) {
       if (!src) return resolve(null);
@@ -366,55 +360,47 @@
     var points = score();
     var range = scoreRange();
     var result = stageFor(points);
-    // Phones and tablets get the share sheet. Computers get a plain download,
-    // since the Windows/Mac share window doesn't list LinkedIn.
+    var share = C.share || {};
+    var links = C.connect || {};
+    // Phones and tablets save through the share sheet (so iPhones get "Save Image").
+    // Computers get a plain download, since the Windows/Mac share window has no save option.
     var isPhone = isPhoneOrTablet();
     var preview = el("img", { class: "card-preview", alt: "Your results card" });
     var status = el("p", { class: "status", text: "Making your card..." });
-    var mainBtn = el("button", { class: "btn btn-primary", disabled: "disabled",
-                                 text: isPhone ? "Save / Share" : "Download image" });
-    var saveBtn = isPhone ? el("button", { class: "btn btn-secondary", disabled: "disabled", text: "Save to my phone" }) : null;
     var file = null;
-    var links = C.connect || {};
     saveSession();
 
-    var postText = fillTemplate(C.shareCaption, {
-      stage: result.stage.name, score: points, max: range.max, talkTitle: C.talkTitle || "", speakerName: C.speakerName || "",
-      eventName: C.eventName || "", hashtag: C.hashtag || ""
+    // Opens a new LinkedIn post with the hashtag filled in. It's a plain link on purpose
+    // (not the share sheet) so this button only ever goes to LinkedIn.
+    var linkedInBtn = el("a", {
+      class: "btn btn-primary", target: "_blank", rel: "noopener noreferrer",
+      href: "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(C.hashtag || ""),
+      text: share.linkedInButton || "Share to LinkedIn"
     });
-
-    // Opens a new LinkedIn post (post text filled in through the link) and copies the
-    // card image to the clipboard so it can be pasted in with Ctrl+V. Browsers don't
-    // let a website attach a file to another website's post, so this is the closest we get.
-    var linkedInUrl = "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(postText);
-    var linkedInBtn = isPhone ? null : el("a", {
-      class: "btn btn-secondary", target: "_blank", rel: "noopener noreferrer",
-      href: linkedInUrl, text: "Open LinkedIn", onclick: openLinkedIn
-    });
+    var saveBtn = el("button", { class: "btn btn-secondary", disabled: "disabled",
+                                 text: share.saveButton || "Save My Results to My Phone" });
 
     show(el("section", { class: "screen" }, [
       el("h2", { text: "Nice work, " + state.name + "!" }),
       privateScore(points, range, result),
       preview,
-      el("p", { class: "hint", text: isPhone
-        ? "Tip: you can also press and hold the image to save it."
-        : "Open LinkedIn copies your card. In the new post, press Ctrl+V (Cmd+V on a Mac) to add it." }),
-      mainBtn,
-      saveBtn,
+      isPhone ? el("p", { class: "hint", text: "Tip: you can also press and hold the image to save it." }) : null,
       linkedInBtn,
+      share.linkedInReminder ? el("p", { class: "attach-reminder" }, [paperclipIcon(), el("span", { text: share.linkedInReminder })]) : null,
+      saveBtn,
       status,
       el("p", { class: "eyebrow section-label", text: "Stay connected" }),
-      externalButton(links.linkedInUrl, links.linkedInButton || "Connect on LinkedIn"),
-      externalButton(links.websiteUrl, links.websiteButton || "Visit the website"),
       links.email ? el("button", { class: "btn btn-secondary", text: links.feedbackButton || "Give feedback",
                                    onclick: feedbackScreen }) : null,
+      externalButton(links.linkedInUrl, links.linkedInButton || "Connect on LinkedIn"),
+      externalButton(links.websiteUrl, links.websiteButton || "Visit the website"),
       el("button", { class: "btn-link", text: "Start over", onclick: function () {
         clearSession();
         introScreen();
       } })
     ]));
 
-    // Build the PNG right away so the share button can open the share sheet
+    // Build the PNG right away so the save button can open the share sheet
     // instantly when tapped (iPhones require that).
     drawCard(points, range, result).then(function (canvas) {
       canvas.toBlob(function (blob) {
@@ -423,17 +409,16 @@
         if (cardUrl) URL.revokeObjectURL(cardUrl);
         cardUrl = URL.createObjectURL(blob);
         preview.src = cardUrl;
-        mainBtn.removeAttribute("disabled");
-        if (saveBtn) saveBtn.removeAttribute("disabled");
+        saveBtn.removeAttribute("disabled");
         status.textContent = "";
       }, "image/png");
     });
 
-    mainBtn.addEventListener("click", function () {
+    saveBtn.addEventListener("click", function () {
       if (!file) return;
       if (isPhone && navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: C.cardHeadline || "My results" })
-          .then(function () { status.textContent = "Shared!"; })
+        navigator.share({ files: [file] })
+          .then(function () { status.textContent = "Done. If you saved it, your card is in your photos, ready for your post."; })
           .catch(function (err) {
             if (err && err.name === "AbortError") return; // they closed the share sheet
             download();
@@ -442,7 +427,6 @@
         download();
       }
     });
-    if (saveBtn) saveBtn.addEventListener("click", function () { if (file) download(); });
 
     function download() {
       var a = el("a", { href: cardUrl, download: file.name });
@@ -452,28 +436,6 @@
       status.textContent = isPhone
         ? "Saved to your Downloads. It should show up in your photos app too."
         : "Downloaded. Look in your Downloads folder.";
-    }
-
-    function openLinkedIn(e) {
-      if (!file || !navigator.clipboard || !navigator.clipboard.write || !window.ClipboardItem) {
-        status.textContent = "In LinkedIn, click the photo button and pick " + (file ? file.name : "the image") + " from your Downloads.";
-        if (file) download();
-        return; // let the link open LinkedIn as normal
-      }
-      // Copy first, then open the tab. The copy fails if this page loses focus first.
-      e.preventDefault();
-      function open() {
-        var tab = window.open(linkedInUrl, "_blank");
-        if (tab) tab.opener = null;
-      }
-      navigator.clipboard.write([new ClipboardItem({ "image/png": file })]).then(function () {
-        status.textContent = "Card copied. In the LinkedIn post, press Ctrl+V (Cmd+V on a Mac) to add it.";
-        open();
-      }, function () {
-        download();
-        status.textContent = "In LinkedIn, click the photo button and pick " + file.name + " from your Downloads.";
-        open();
-      });
     }
   }
 
