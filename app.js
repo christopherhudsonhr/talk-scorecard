@@ -10,7 +10,7 @@
   var CARD_SIZE = 1200;
   var FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
-  var state = { index: 0, answers: [], name: "", title: "" };
+  var state = { index: 0, answers: [], name: "", title: "", unlocked: false };
 
   // ---------- Helpers ----------
 
@@ -109,8 +109,70 @@
       el("div", { class: "spacer" }),
       intro.disclaimer ? el("p", { class: "disclaimer", text: intro.disclaimer }) : null,
       el("button", { class: "btn btn-primary", text: intro.startButton || "Start", onclick: function () {
-        state = { index: 0, answers: [], name: state.name, title: state.title };
+        state = { index: 0, answers: [], name: state.name, title: state.title, unlocked: state.unlocked };
+        // Once someone has unlocked, "Start over" takes them straight back to the questions.
+        if (state.unlocked) questionScreen();
+        else if (C.rightTalk && C.rightTalk.titleSlide) rightTalkScreen();
+        else unlockScreen();
+      } })
+    ]));
+  }
+
+  function rightTalkScreen() {
+    var rt = C.rightTalk;
+    show(el("section", { class: "screen" }, [
+      el("h2", { text: rt.heading || "Are you at the right talk?" }),
+      el("img", { class: "title-slide", src: rt.titleSlide, alt: "Title slide: " + (C.talkTitle || "") }),
+      el("div", { class: "spacer" }),
+      el("button", { class: "btn btn-primary", text: rt.yesButton || "Yes", onclick: unlockScreen }),
+      el("button", { class: "btn btn-secondary", text: rt.noButton || "No", onclick: wrongTalkScreen }),
+      el("button", { class: "btn-link", text: "Back", onclick: introScreen })
+    ]));
+  }
+
+  function wrongTalkScreen() {
+    var rt = C.rightTalk;
+    show(el("section", { class: "screen" }, [
+      el("h2", { text: rt.wrongTalkHeading || "Different session" }),
+      el("p", { class: "lead", text: rt.wrongTalkText || "" }),
+      el("div", { class: "spacer" }),
+      el("button", { class: "btn btn-secondary", text: "Back", onclick: rightTalkScreen })
+    ]));
+  }
+
+  function normalizeCode(value) {
+    return String(value || "").replace(/\s+/g, "").toUpperCase();
+  }
+
+  function unlockScreen() {
+    var u = C.unlock || {};
+    if (!normalizeCode(u.code)) { state.unlocked = true; questionScreen(); return; }
+
+    var input = el("input", { type: "text", id: "code", class: "code-input", placeholder: u.placeholder || "Enter code",
+                              autocomplete: "off", autocapitalize: "characters", autocorrect: "off",
+                              spellcheck: "false", enterkeyhint: "go", "aria-label": u.placeholder || "Enter code" });
+    var error = el("p", { class: "error", role: "alert" });
+
+    function submit(e) {
+      e.preventDefault();
+      if (normalizeCode(input.value) === normalizeCode(u.code)) {
+        input.blur();
+        state.unlocked = true;
         questionScreen();
+      } else {
+        error.textContent = u.wrongCodeText || "That's not it. Try again.";
+        input.select();
+      }
+    }
+
+    show(el("form", { class: "screen", novalidate: "novalidate", onsubmit: submit }, [
+      el("h2", { text: u.heading || "Welcome!" }),
+      el("p", { class: "lead", text: u.text || "" }),
+      el("div", {}, [input, error]),
+      el("div", { class: "spacer" }),
+      el("button", { class: "btn btn-primary", type: "submit", text: u.button || "Start" }),
+      el("button", { class: "btn-link", type: "button", text: "Back", onclick: function () {
+        if (C.rightTalk && C.rightTalk.titleSlide) rightTalkScreen(); else introScreen();
       } })
     ]));
   }

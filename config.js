@@ -25,11 +25,11 @@ window.SCORECARD_CONFIG = {
   //  THE BASICS
   //  These show up on the start screen and on the results card.
   // ----------------------------------------------------------
-  talkTitle: "Your Talk Title Goes Here",
+  talkTitle: "The Transformative AI Adoption Playbook HR Actually Needs",
   speakerName: "Christopher Hudson",
   speakerCredentials: "SHRM-SCP, Assoc. CIPD",  // Shown after your name on the card. "" to hide.
-  eventName: "Event Name 2026",
-  eventDate: "October 15, 2026",   // Any format you like. It's shown exactly as typed.
+  eventName: "HR Tampa Annual Conference and Expo",
+  eventDate: "October 2, 2026",    // Any format you like. It's shown exactly as typed.
   hashtag: "#YourHashtag",         // Include the #. Leave as "" to hide it.
 
   // ----------------------------------------------------------
@@ -68,6 +68,42 @@ window.SCORECARD_CONFIG = {
     // Privacy note shown in a box above the start button. Leave as "" to hide it.
     disclaimer: "Nothing you enter is saved permanently in this application. No data is collected.",
     startButton: "Let's go"
+  },
+
+  // ----------------------------------------------------------
+  //  "ARE YOU AT THE RIGHT TALK?" SCREEN
+  //  Shows your title slide so people can confirm they're in the
+  //  right room. Export your title slide as a JPEG, drop it in the
+  //  same folder as this file, and put its file name below.
+  //  Leave titleSlide as "" to skip this screen.
+  // ----------------------------------------------------------
+  rightTalk: {
+    titleSlide: "title-slide.jpg",
+    heading: "Are you at the right talk?",
+    yesButton: "Yes, that's the one",
+    noButton: "No, wrong talk",
+    // Shown if they tap the "No" button.
+    wrongTalkHeading: "Oops, different session",
+    wrongTalkText: "Looks like you scanned a code for a different talk. Check the room number or ask the event staff."
+  },
+
+  // ----------------------------------------------------------
+  //  UNLOCK CODE SCREEN
+  //  People wait here until you show the code on a slide. Once they
+  //  type it in, the questions start.
+  //   - The code can be any length. Capitals and spaces don't matter,
+  //     so "AIADOPT", "aiadopt" and "ai adopt" all work.
+  //   - Leave code as "" to skip this screen.
+  //   - Heads up: anyone who digs into this file can see the code.
+  //     It keeps people in step with you, not out of the app.
+  // ----------------------------------------------------------
+  unlock: {
+    code: "AIADOPT",
+    heading: "Welcome! You're in the right place.",
+    text: "Hang tight until Christopher gives you the code.",
+    placeholder: "Enter code",
+    button: "Start",
+    wrongCodeText: "That's not quite it. Check the slide and try again."
   },
 
   // ----------------------------------------------------------
