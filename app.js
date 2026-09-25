@@ -10,7 +10,40 @@
   var CARD_SIZE = 1200;
   var FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
-  var state = { index: 0, answers: [], name: "", title: "", unlocked: false };
+  var state = { index: 0, answers: [], name: "", title: "", unlocked: false, feedback: "" };
+  var cardUrl = null; // object URL for the current card image, freed when a new one is made
+
+  // ---------- Session memory ----------
+  // Answers, name and feedback draft are kept in sessionStorage so that if the
+  // phone reloads the tab (say, after switching to the email app) people land
+  // back on their results. It never leaves the phone and is wiped when the tab closes.
+  var SAVE_KEY = "talkScorecard";
+
+  function saveSession() {
+    try {
+      sessionStorage.setItem(SAVE_KEY, JSON.stringify({
+        talk: C.talkTitle, answers: state.answers, name: state.name, title: state.title,
+        unlocked: state.unlocked, feedback: state.feedback
+      }));
+    } catch (e) { /* private mode or storage blocked: the app still works, it just won't remember */ }
+  }
+
+  function clearSession() {
+    try { sessionStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+  }
+
+  // Returns true if there were finished results to go back to.
+  function restoreSession() {
+    var saved;
+    try { saved = JSON.parse(sessionStorage.getItem(SAVE_KEY)); } catch (e) { return false; }
+    if (!saved || saved.talk !== C.talkTitle || !saved.name || !Array.isArray(saved.answers) ||
+        saved.answers.length !== C.questions.length) return false;
+    var valid = saved.answers.every(function (a, i) { return isWhole(a) && a >= 0 && a < C.questions[i].options.length; });
+    if (!valid) return false;
+    state = { index: C.questions.length, answers: saved.answers, name: String(saved.name), title: String(saved.title || ""),
+              unlocked: true, feedback: String(saved.feedback || "") };
+    return true;
+  }
 
   // ---------- Helpers ----------
 
@@ -170,7 +203,7 @@
       el("div", { class: "spacer" }),
       intro.disclaimer ? el("p", { class: "disclaimer", text: intro.disclaimer }) : null,
       el("button", { class: "btn btn-primary", text: intro.startButton || "Start", onclick: function () {
-        state = { index: 0, answers: [], name: state.name, title: state.title, unlocked: state.unlocked };
+        state = { index: 0, answers: [], name: state.name, title: state.title, unlocked: state.unlocked, feedback: "" };
         // Once someone has unlocked, "Start over" takes them straight back to the questions.
         if (state.unlocked) questionScreen();
         else if (C.rightTalk && C.rightTalk.titleSlide) rightTalkScreen();
@@ -295,6 +328,7 @@
       state.name = name;
       state.title = titleInput.value.trim();
       nameInput.blur(); titleInput.blur();
+      state.feedback = "";
       resultScreen();
     }
 
@@ -340,19 +374,19 @@
     var mainBtn = el("button", { class: "btn btn-primary", disabled: "disabled",
                                  text: isPhone ? "Save / Share" : "Download image" });
     var saveBtn = isPhone ? el("button", { class: "btn btn-secondary", disabled: "disabled", text: "Save to my phone" }) : null;
-    var captionBtn = el("button", { class: "btn btn-secondary", text: "Copy caption" });
     var file = null;
-    var objectUrl = null;
+    var links = C.connect || {};
+    saveSession();
 
-    var caption = fillTemplate(C.shareCaption, {
+    var postText = fillTemplate(C.shareCaption, {
       stage: result.stage.name, score: points, max: range.max, talkTitle: C.talkTitle || "", speakerName: C.speakerName || "",
       eventName: C.eventName || "", hashtag: C.hashtag || ""
     });
 
-    // Opens a new LinkedIn post (caption filled in through the link) and copies the
+    // Opens a new LinkedIn post (post text filled in through the link) and copies the
     // card image to the clipboard so it can be pasted in with Ctrl+V. Browsers don't
     // let a website attach a file to another website's post, so this is the closest we get.
-    var linkedInUrl = "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(caption);
+    var linkedInUrl = "https://www.linkedin.com/feed/?shareActive=true&text=" + encodeURIComponent(postText);
     var linkedInBtn = isPhone ? null : el("a", {
       class: "btn btn-secondary", target: "_blank", rel: "noopener noreferrer",
       href: linkedInUrl, text: "Open LinkedIn", onclick: openLinkedIn
@@ -368,10 +402,14 @@
       mainBtn,
       saveBtn,
       linkedInBtn,
-      captionBtn,
       status,
+      el("p", { class: "eyebrow section-label", text: "Stay connected" }),
+      externalButton(links.linkedInUrl, links.linkedInButton || "Connect on LinkedIn"),
+      externalButton(links.websiteUrl, links.websiteButton || "Visit the website"),
+      links.email ? el("button", { class: "btn btn-secondary", text: links.feedbackButton || "Give feedback",
+                                   onclick: feedbackScreen }) : null,
       el("button", { class: "btn-link", text: "Start over", onclick: function () {
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        clearSession();
         introScreen();
       } })
     ]));
@@ -382,8 +420,9 @@
       canvas.toBlob(function (blob) {
         if (!blob) { status.textContent = "Couldn't make the image on this browser. Try a screenshot."; return; }
         file = new File([blob], C.fileName || "my-results.png", { type: "image/png" });
-        objectUrl = URL.createObjectURL(blob);
-        preview.src = objectUrl;
+        if (cardUrl) URL.revokeObjectURL(cardUrl);
+        cardUrl = URL.createObjectURL(blob);
+        preview.src = cardUrl;
         mainBtn.removeAttribute("disabled");
         if (saveBtn) saveBtn.removeAttribute("disabled");
         status.textContent = "";
@@ -406,7 +445,7 @@
     if (saveBtn) saveBtn.addEventListener("click", function () { if (file) download(); });
 
     function download() {
-      var a = el("a", { href: objectUrl, download: file.name });
+      var a = el("a", { href: cardUrl, download: file.name });
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -436,25 +475,66 @@
         open();
       });
     }
+  }
 
-    function copyCaption(quiet) {
-      function fallback() {
-        if (quiet) return;
-        var box = el("textarea", { class: "caption-box", readonly: "readonly" });
-        box.value = caption;
-        captionBtn.replaceWith(box);
-        box.focus(); box.select();
-        status.textContent = "Press and hold the text to copy it.";
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(caption).then(function () {
-          status.textContent = "Caption copied. Paste it into your post.";
-        }, fallback);
-      } else {
-        fallback();
-      }
+  // A big button that opens a link in a new tab. Hidden if the link is blank.
+  function externalButton(url, label) {
+    if (!url) return null;
+    return el("a", { class: "btn btn-secondary", href: url, target: "_blank", rel: "noopener noreferrer", text: label });
+  }
+
+  function paperclipIcon() {
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    var path = document.createElementNS(ns, "path");
+    path.setAttribute("d", "M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48");
+    svg.appendChild(path);
+    return svg;
+  }
+
+  function feedbackScreen() {
+    var fb = C.feedback || {};
+    var email = (C.connect || {}).email || "";
+    var box = el("textarea", { class: "feedback-box", id: "feedback", maxlength: "1500",
+                               placeholder: fb.placeholder || "", "aria-label": fb.heading || "Feedback" });
+    var error = el("p", { class: "error", role: "alert" });
+    var emailBtn = el("a", { class: "btn btn-primary", text: fb.emailButton || "Send by email" });
+    box.value = state.feedback;
+
+    // mailto:address?subject=...&body=... with every part URL-encoded.
+    // Line breaks become CRLF, which is what email apps expect.
+    function updateLink() {
+      var body = box.value.trim().replace(/\r?\n/g, "\r\n");
+      emailBtn.setAttribute("href", "mailto:" + email +
+        "?subject=" + encodeURIComponent(C.talkTitle || "Feedback") +
+        "&body=" + encodeURIComponent(body));
     }
-    captionBtn.addEventListener("click", function () { copyCaption(false); });
+    updateLink();
+
+    box.addEventListener("input", function () {
+      state.feedback = box.value;
+      error.textContent = "";
+      updateLink();
+      saveSession();
+    });
+    emailBtn.addEventListener("click", function (e) {
+      if (!box.value.trim()) {
+        e.preventDefault();
+        error.textContent = fb.emptyError || "Type a few words first.";
+        box.focus();
+      }
+    });
+
+    show(el("section", { class: "screen" }, [
+      el("h2", { text: fb.heading || "Feedback" }),
+      fb.intro ? el("p", { class: "lead", text: fb.intro }) : null,
+      el("div", {}, [box, error]),
+      fb.attachReminder ? el("p", { class: "attach-reminder" }, [paperclipIcon(), el("span", { text: fb.attachReminder })]) : null,
+      emailBtn,
+      el("button", { class: "btn btn-secondary", text: fb.backButton || "Back to my results", onclick: resultScreen })
+    ]));
   }
 
   // The full score, shown only on this screen. The card shows the stage.
@@ -660,6 +740,6 @@
 
   if (checkConfig()) {
     applyTheme();
-    introScreen();
+    if (restoreSession()) resultScreen(); else introScreen();
   }
 })();

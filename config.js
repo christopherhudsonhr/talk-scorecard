@@ -153,11 +153,41 @@ window.SCORECARD_CONFIG = {
     { name: "Leading",   min: 13, max: 16, description: "Setting the pace for how HR adopts AI." }
   ],
 
-  // Suggested post text people can copy with the "Copy caption" button.
+  // Post text that's filled in when someone taps "Open LinkedIn" on a computer.
   // These placeholders get swapped in automatically:
   //   {stage} {talkTitle} {speakerName} {eventName} {hashtag}
   //   {score} {max}  (only use these if you want the number public)
   shareCaption: "I landed in the {stage} stage during \"{talkTitle}\" with {speakerName} at {eventName}. {hashtag}",
+
+  // ----------------------------------------------------------
+  //  STAY CONNECTED (buttons on the results screen)
+  //  Leave a link or email as "" to hide that button.
+  // ----------------------------------------------------------
+  connect: {
+    linkedInUrl: "https://www.linkedin.com/in/christopherhudsonhr/",
+    linkedInButton: "Connect with Christopher",
+    websiteUrl: "https://hrsoul.com/",
+    websiteButton: "Connect with HR Soul",
+    email: "christopherhudsonhr@gmail.com",   // Where feedback emails go
+    feedbackButton: "Give Feedback to Christopher"
+  },
+
+  // ----------------------------------------------------------
+  //  FEEDBACK SCREEN
+  //  "Email Christopher" opens the person's own email app with a new
+  //  message to the address above. The subject is the talk title and
+  //  the body is whatever they typed. Nothing is sent until they hit
+  //  send in their email app.
+  // ----------------------------------------------------------
+  feedback: {
+    heading: "Feedback for Christopher",
+    intro: "What landed? What would you like to hear more about? Every note gets read.",
+    placeholder: "Type your feedback here",
+    attachReminder: "Don't forget to attach your results!",  // Shown right above the email button
+    emailButton: "Email Christopher",
+    backButton: "Back to my results",
+    emptyError: "Type a few words first, then tap the button again."
+  },
 
   // File name for the saved image (no spaces works best).
   fileName: "my-results.png",
