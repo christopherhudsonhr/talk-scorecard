@@ -158,10 +158,10 @@ window.SCORECARD_CONFIG = {
   //  Always open the link once after changing questions or stages.
   // ----------------------------------------------------------
   stages: [
-    { name: "Curious",   min: 0,  max: 4,  description: "Watching AI closely and getting ready to make a move." },
-    { name: "Exploring", min: 5,  max: 8,  description: "Trying AI in pockets and learning what works." },
-    { name: "Building",  min: 9,  max: 12, description: "Turning early wins into real momentum." },
-    { name: "Leading",   min: 13, max: 16, description: "Setting the pace for how HR adopts AI." }
+    { name: "Curious",       min: 0, max: 2, description: "Watching AI closely and getting ready to make a move." },
+    { name: "Experimenting", min: 3, max: 4, description: "Trying AI in pockets and learning what works." },
+    { name: "Building",      min: 5, max: 6, description: "Turning early wins into real momentum." },
+    { name: "Leading",       min: 7, max: 9, description: "Setting the pace for how HR adopts AI." }
   ],
 
   // ----------------------------------------------------------
@@ -232,49 +232,71 @@ window.SCORECARD_CONFIG = {
   //  block (including the comma after it) and paste it below the others.
   // ----------------------------------------------------------
   questions: [
+    // Recruitment
     {
-      question: "Placeholder question 1: How often do you do the thing?",
+      question: "We are using AI in at least one part of the recruitment process (screening, interviewing, selection, etc.).",
       options: [
-        { text: "Never", points: 0 },
-        { text: "Once in a while", points: 1 },
-        { text: "Most weeks", points: 2 },
-        { text: "Every day", points: 3 }
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
       ]
     },
     {
-      question: "Placeholder question 2: How confident do you feel about it?",
+      question: "I know every place AI touches our hiring process, including features inside our ATS.",
       options: [
-        { text: "Not at all", points: 0 },
-        { text: "A little", points: 1 },
-        { text: "Pretty confident", points: 2 },
-        { text: "Could teach it", points: 3 }
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
       ]
     },
     {
-      question: "Placeholder question 3: Does your team talk about it?",
+      question: "A human regularly reviews candidates that the AI screen lets through and those it screens out.",
       options: [
-        { text: "Not really", points: 0 },
-        { text: "Sometimes", points: 2 },
-        { text: "All the time", points: 4 }
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
+      ]
+    },
+    // Performance Management
+    {
+      question: "We allow managers to use AI to help write performance reviews.",
+      options: [
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
       ]
     },
     {
-      question: "Placeholder question 4: Pick the one that sounds most like you.",
+      question: "If a manager used AI to decide a rating, HR would know.",
       options: [
-        { text: "Waiting to see what happens", points: 0 },
-        { text: "Curious but cautious", points: 1 },
-        { text: "Trying things out", points: 2 },
-        { text: "All in", points: 3 }
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
       ]
     },
     {
-      question: "Placeholder question 5: Where do you want to be a year from now?",
+      question: "Our employees know whether their manager used AI to write their performance review or feedback.",
       options: [
-        { text: "Same place, honestly", points: 0 },
-        { text: "A little further along", points: 1 },
-        { text: "Way further along", points: 2 },
-        { text: "Leading the charge", points: 3 }
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
       ]
-    }
+    },
+    // Workforce Planning and Analysis
+    {
+      question: "I can name the tasks in at least one role that AI now does or shares (sanctioned or not).",
+      options: [
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
+      ]
+    },
+    {
+      question: "We have a plan for how employees will use the time AI saves them.",
+      options: [
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
+      ]
+    },
+    {
+      question: "We've rewritten at least one job description to reflect how AI has changed the role.",
+      options: [
+        { text: "Yes", points: 1 },
+        { text: "No / Don't know", points: 0 }
+      ]
+    },
   ]
 };
