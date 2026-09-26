@@ -234,21 +234,21 @@ window.SCORECARD_CONFIG = {
   questions: [
     // Recruitment
     {
-      question: "We are using AI in at least one part of the recruitment process (screening, interviewing, selection, etc.).",
+      question: "Question 1: Recruitment\nWe are using AI in at least one part of the recruitment process (screening, interviewing, selection, etc.).",
       options: [
         { text: "Yes", points: 1 },
         { text: "No / Don't know", points: 0 }
       ]
     },
     {
-      question: "I know every place AI touches our hiring process, including features inside our ATS.",
+      question: "Question 2: Recruitment\nI know every place AI touches our hiring process, including features inside our ATS.",
       options: [
         { text: "Yes", points: 1 },
         { text: "No / Don't know", points: 0 }
       ]
     },
     {
-      question: "A human regularly reviews candidates that the AI screen lets through and those it screens out.",
+      question: "Question 3: Recruitment\nA human regularly reviews candidates that the AI screen lets through and those it screens out.",
       options: [
         { text: "Yes", points: 1 },
         { text: "No / Don't know", points: 0 }
