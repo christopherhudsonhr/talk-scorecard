@@ -30,7 +30,7 @@ window.SCORECARD_CONFIG = {
   speakerCredentials: "SHRM-SCP, Associate CIPD",  // Shown after your name on the card. "" to hide.
   eventName: "HR Tampa Annual Conference and Expo",
   eventDate: "October 2, 2026",    // Any format you like. It's shown exactly as typed.
-  hashtag: "#YourHashtag",         // Include the #. Leave as "" to hide it.
+  hashtag: "#BeTheSpark",         // Include the #. Leave as "" to hide it.
 
   // ----------------------------------------------------------
   //  LOGO (optional)
