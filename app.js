@@ -391,15 +391,23 @@
     return /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
   }
 
+  // iPhones and iPads (including iPads that pretend to be a Mac).
+  function isApple() {
+    var ua = navigator.userAgent || "";
+    return /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  }
+
   function resultScreen() {
     var points = score();
     var range = scoreRange();
     var result = stageFor(points);
     var share = C.share || {};
     var links = C.connect || {};
-    // Phones and tablets save through the share sheet (so iPhones get "Save Image").
-    // Computers get a plain download, since the Windows/Mac share window has no save option.
+    // Saving: iPhones use the share sheet, because "Save Image" there is the only way
+    // into Photos. Android and computers download the file instead, since their share
+    // lists have no "save to gallery" option. Android galleries show it under Download.
     var isPhone = isPhoneOrTablet();
+    var saveViaShareSheet = isApple() && canShareImages();
     var preview = el("img", { class: "card-preview", alt: "Your results card" });
     var status = el("p", { class: "status", text: "Making your card..." });
     var file = null;
@@ -470,7 +478,7 @@
 
     saveBtn.addEventListener("click", function () {
       if (!file) return;
-      if (isPhone && navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (saveViaShareSheet) {
         navigator.share({ files: [file] })
           .then(function () { status.textContent = "Done. If you saved it, your card is in your photos, ready for your post."; })
           .catch(function (err) {
@@ -488,7 +496,7 @@
       a.click();
       a.remove();
       status.textContent = isPhone
-        ? "Saved to your Downloads. It should show up in your photos app too."
+        ? "Saved! Look for it in your gallery or Photos app, in the Download folder."
         : "Downloaded. Look in your Downloads folder.";
     }
   }
