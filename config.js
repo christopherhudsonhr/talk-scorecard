@@ -30,7 +30,7 @@ window.SCORECARD_CONFIG = {
   speakerCredentials: "SHRM-SCP, Associate CIPD",  // Shown after your name on the card. "" to hide.
   eventName: "HR Tampa Annual Conference and Expo",
   eventDate: "October 2, 2026",    // Any format you like. It's shown exactly as typed.
-  hashtag: "#YourHashtag",         // Include the #. Leave as "" to hide it.
+  hashtag: "#BeTheSpark",          // Include the #. Leave as "" to hide it.
 
   // ----------------------------------------------------------
   //  LOGO (optional)
@@ -155,7 +155,7 @@ window.SCORECARD_CONFIG = {
   //  Always open the link once after changing questions or stages.
   // ----------------------------------------------------------
   stages: [
-    { name: "Curious",       min: 0, max: 2, description: "Watching AI closely and ready to take a first step." },
+    { name: "Curious",       min: 0, max: 2, description: "Watching AI closely and getting ready to make a move." },
     { name: "Experimenting", min: 3, max: 5, description: "Trying AI in pockets and learning what works." },
     { name: "Building",      min: 6, max: 7, description: "Turning early wins into real momentum." },
     { name: "Leading",       min: 8, max: 9, description: "Setting the pace for how HR adopts AI." }
@@ -230,31 +230,31 @@ window.SCORECARD_CONFIG = {
   //  If you change the total number of questions, update the stages above so
   //  the last stage's max matches the new total.
   // ----------------------------------------------------------
-  answerLabels: { yes: "Yes", no: "No" },
+  answerLabels: { yes: "Yes", no: "No / Don't know" },
 
   sections: [
     {
       name: "Recruitment",
       questions: [
-        "Recruitment question 1 goes here. (Yes = the more advanced answer.)",
-        "Recruitment question 2 goes here. (Yes = the more advanced answer.)",
-        "Recruitment question 3 goes here. (Yes = the more advanced answer.)"
+        "We are using AI in at least one part of the recruitment process (screening, interviewing, selection, etc.).",
+        "I know every place AI touches our hiring process, including features inside our ATS.",
+        "A human regularly reviews candidates that the AI screen lets through and those it screens out."
       ]
     },
     {
       name: "Performance Management",
       questions: [
-        "Performance Management question 1 goes here. (Yes = the more advanced answer.)",
-        "Performance Management question 2 goes here. (Yes = the more advanced answer.)",
-        "Performance Management question 3 goes here. (Yes = the more advanced answer.)"
+        "We allow managers to use AI to help write performance reviews.",
+        "If a manager used AI to decide a rating, HR would know.",
+        "Our employees know whether their manager used AI to write their performance review or feedback."
       ]
     },
     {
       name: "Workforce Planning and Analysis",
       questions: [
-        "Workforce Planning and Analysis question 1 goes here. (Yes = the more advanced answer.)",
-        "Workforce Planning and Analysis question 2 goes here. (Yes = the more advanced answer.)",
-        "Workforce Planning and Analysis question 3 goes here. (Yes = the more advanced answer.)"
+        "I can name the tasks in at least one role that AI now does or shares (sanctioned or not).",
+        "We have a plan for how employees will use the time AI saves them.",
+        "We've rewritten at least one job description to reflect how AI has changed the role."
       ]
     }
   ]
