@@ -252,7 +252,7 @@ window.SCORECARD_CONFIG = {
     {
       name: "Workforce Planning and Analysis",
       questions: [
-        "I can name the tasks in at least one role that AI now does or shares (sanctioned or not).",
+        "I can name the tasks in at least one role that AI now does or shares.",
         "We have a plan for how employees will use the time AI saves them.",
         "We've rewritten at least one job description to reflect how AI has changed the role."
       ]
