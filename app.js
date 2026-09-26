@@ -425,7 +425,8 @@
       href: linkedInUrl, text: share.linkedInButton || "Share to LinkedIn"
     });
     var saveBtn = el("button", { class: "btn btn-secondary", disabled: "disabled",
-                                 text: share.saveButton || "Save My Results to My Phone" });
+                                 text: isPhone ? (share.saveButton || "Save My Results to My Phone")
+                                               : (share.saveButtonComputer || "Download My Results") });
 
     show(el("section", { class: "screen" }, [
       el("h2", { text: "Nice work, " + state.name + "!" }),

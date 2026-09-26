@@ -175,7 +175,8 @@ window.SCORECARD_CONFIG = {
     linkedInButton: "Share to LinkedIn",
     linkedInPhoneHint: "Pick LinkedIn from the list that pops up.",   // Phones: shown under the LinkedIn button
     linkedInReminder: "Add your saved results photo to the post.",  // Computers: shown under the LinkedIn button
-    saveButton: "Save My Results to My Phone"
+    saveButton: "Save My Results to My Phone",   // Phones
+    saveButtonComputer: "Download My Results"     // Computers
   },
 
   // ----------------------------------------------------------
