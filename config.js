@@ -234,8 +234,7 @@ window.SCORECARD_CONFIG = {
   questions: [
     // Recruitment
     {
-      section: "Question 1: Recruitment"
-      question: "We are using AI in at least one part of the recruitment process (screening, interviewing, selection, etc.).",
+      question: "Question 1: Recruitment\nWe are using AI in at least one part of the recruitment process (screening, interviewing, selection, etc.).",
       options: [
         { text: "Yes", points: 1 },
         { text: "No / Don't know", points: 0 }
