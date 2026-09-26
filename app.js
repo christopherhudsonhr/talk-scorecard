@@ -6,6 +6,7 @@
   "use strict";
 
   var C = window.SCORECARD_CONFIG;
+  var QUESTIONS = buildQuestions(); // flat list built from the sections in config.js
   var app = document.getElementById("app");
   var CARD_SIZE = 1200;
   var FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -37,12 +38,32 @@
     var saved;
     try { saved = JSON.parse(sessionStorage.getItem(SAVE_KEY)); } catch (e) { return false; }
     if (!saved || saved.talk !== C.talkTitle || !saved.name || !Array.isArray(saved.answers) ||
-        saved.answers.length !== C.questions.length) return false;
-    var valid = saved.answers.every(function (a, i) { return isWhole(a) && a >= 0 && a < C.questions[i].options.length; });
+        saved.answers.length !== QUESTIONS.length) return false;
+    var valid = saved.answers.every(function (a, i) { return isWhole(a) && a >= 0 && a < QUESTIONS[i].options.length; });
     if (!valid) return false;
-    state = { index: C.questions.length, answers: saved.answers, name: String(saved.name), title: String(saved.title || ""),
+    state = { index: QUESTIONS.length, answers: saved.answers, name: String(saved.name), title: String(saved.title || ""),
               unlocked: true, feedback: String(saved.feedback || "") };
     return true;
+  }
+
+  // ---------- Questions ----------
+
+  // Turns the sections in config.js into one list of Yes/No questions.
+  // Answer 0 is Yes (1 point) and answer 1 is No (0 points).
+  function buildQuestions() {
+    var list = [];
+    if (!C || !Array.isArray(C.sections)) return list;
+    var labels = C.answerLabels || {};
+    C.sections.forEach(function (section, s) {
+      var qs = Array.isArray(section.questions) ? section.questions : [];
+      qs.forEach(function (text, n) {
+        list.push({
+          question: String(text), section: section.name || "", sectionIndex: s, number: n + 1, sectionSize: qs.length,
+          options: [{ text: labels.yes || "Yes", points: 1 }, { text: labels.no || "No", points: 0 }]
+        });
+      });
+    });
+    return list;
   }
 
   // ---------- Helpers ----------
@@ -67,7 +88,7 @@
 
   // Lowest and highest scores anyone can get with the questions in config.js.
   function scoreRange() {
-    return C.questions.reduce(function (range, q) {
+    return QUESTIONS.reduce(function (range, q) {
       var pts = q.options.map(function (o) { return Number(o.points) || 0; });
       return { min: range.min + Math.min.apply(null, pts), max: range.max + Math.max.apply(null, pts) };
     }, { min: 0, max: 0 });
@@ -75,7 +96,7 @@
 
   function score() {
     return state.answers.reduce(function (sum, optIndex, qIndex) {
-      return sum + (Number(C.questions[qIndex].options[optIndex].points) || 0);
+      return sum + (Number(QUESTIONS[qIndex].options[optIndex].points) || 0);
     }, 0);
   }
 
@@ -99,7 +120,7 @@
     var problems = [];
     if (!Array.isArray(C.stages) || !C.stages.length) return ["Add at least one stage to the stages list."];
 
-    C.questions.forEach(function (q, i) {
+    QUESTIONS.forEach(function (q, i) {
       q.options.forEach(function (o) {
         if (!isWhole(Number(o.points))) {
           problems.push("Question " + (i + 1) + ', answer "' + o.text + '" is worth ' + o.points + " points. Points need to be whole numbers.");
@@ -160,9 +181,11 @@
   function checkConfig() {
     var problems = [];
     if (!C) problems.push("config.js didn't load. Check it for a missing comma or quote.");
-    else if (!Array.isArray(C.questions) || !C.questions.length) problems.push("config.js has no questions.");
-    else C.questions.forEach(function (q, i) {
-      if (!q.options || !q.options.length) problems.push("Question " + (i + 1) + " has no options.");
+    else if (!Array.isArray(C.sections) || !C.sections.length) problems.push("config.js has no sections.");
+    else C.sections.forEach(function (section, i) {
+      var label = section.name ? '"' + section.name + '"' : "Section " + (i + 1);
+      if (!section.name) problems.push("Section " + (i + 1) + " needs a name.");
+      if (!Array.isArray(section.questions) || !section.questions.length) problems.push(label + " has no questions.");
     });
     if (!problems.length) problems = stageProblems();
     if (problems.length) {
@@ -278,12 +301,12 @@
 
   function questionScreen() {
     var i = state.index;
-    var q = C.questions[i];
-    var total = C.questions.length;
+    var q = QUESTIONS[i];
+    var total = QUESTIONS.length;
     var locked = false;
 
     var options = q.options.map(function (opt, optIndex) {
-      var btn = el("button", { class: "option" + (state.answers[i] === optIndex ? " selected" : ""), text: opt.text });
+      var btn = el("button", { class: "option yes-no" + (state.answers[i] === optIndex ? " selected" : ""), text: opt.text });
       btn.addEventListener("click", function () {
         if (locked) return;
         locked = true;
@@ -308,8 +331,9 @@
         el("div", { class: "progress" }, [progressFill]),
         el("span", { class: "progress-text", text: (i + 1) + " of " + total })
       ]),
+      el("p", { class: "eyebrow section-tag", text: q.section + " · " + q.number + " of " + q.sectionSize }),
       el("h2", { text: q.question }),
-      el("div", { class: "options" }, options),
+      el("div", { class: "options yes-no-row" }, options),
       el("div", { class: "spacer" }),
       el("button", { class: "btn-link", text: i === 0 ? "Back to start" : "Back", onclick: function () {
         if (i === 0) introScreen(); else { state.index--; questionScreen(); }
@@ -351,7 +375,7 @@
       el("button", { class: "btn btn-primary", type: "submit", text: "See my results" }),
       el("button", { class: "btn-link", type: "button", text: "Back", onclick: function () {
         state.name = nameInput.value.trim(); state.title = titleInput.value.trim();
-        state.index = C.questions.length - 1; questionScreen();
+        state.index = QUESTIONS.length - 1; questionScreen();
       } })
     ]);
     titleInput.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(e); });
@@ -538,6 +562,19 @@
   }
 
   // The full score, shown only on this screen. The card shows the stage.
+  // "Recruitment 2/3" for each section.
+  function sectionBreakdown() {
+    return C.sections.map(function (section, s) {
+      var yes = 0, total = 0;
+      QUESTIONS.forEach(function (q, i) {
+        if (q.sectionIndex !== s) return;
+        total++;
+        if (state.answers[i] === 0) yes++;
+      });
+      return el("li", {}, [el("span", { text: section.name }), el("span", { class: "range", text: yes + "/" + total })]);
+    });
+  }
+
   function privateScore(points, range, result) {
     var list = sortedStages().map(function (st, i) {
       return el("li", { class: i === result.index ? "current" : "" }, [
@@ -549,6 +586,9 @@
       el("p", { class: "eyebrow", text: "Just for you" }),
       el("p", { class: "private-line", text: "You scored " + points + " out of " + range.max + " points." }),
       el("p", { class: "private-stage", text: "That puts you in the " + result.stage.name + " stage. " + (result.stage.description || "") }),
+      el("p", { class: "eyebrow", text: "Your yes answers by section" }),
+      el("ul", { class: "section-list" }, sectionBreakdown()),
+      el("p", { class: "eyebrow", text: "Stages" }),
       el("ul", { class: "stage-list" }, list),
       C.showScoreOnCard ? null : el("p", { class: "hint", text: "Only you see your number. Your card shows your stage." })
     ]);

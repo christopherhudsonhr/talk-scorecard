@@ -282,3 +282,29 @@ textarea.feedback-box:focus { outline: none; border-color: var(--primary); }
 @media (max-height: 600px) {
   #app { padding-top: 12px; padding-bottom: 14px; }
 }
+
+/* Yes / No questions */
+.section-tag { margin: 0 0 -6px; }
+.yes-no-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.option.yes-no {
+  min-height: 84px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+/* Section breakdown on the results screen */
+.section-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.section-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+.section-list .range { font-variant-numeric: tabular-nums; font-weight: 800; color: var(--primary); }
+.private-score .eyebrow { margin-top: 6px; }

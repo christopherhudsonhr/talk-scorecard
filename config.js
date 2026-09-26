@@ -142,26 +142,23 @@ window.SCORECARD_CONFIG = {
   //  You can have as many stages as you like (2 to 5 feels right).
   //
   //  THE RANGES HAVE TO COVER EVERY POSSIBLE SCORE, with no gaps and no
-  //  overlaps. The easy way to get it right:
-  //    1. Work out the lowest possible score (add up the lowest-point answer
-  //       from every question) and the highest (add up the highest-point
-  //       answers). With the sample questions below that's 0 to 16.
-  //    2. The first stage's min is the lowest score. The last stage's max is
-  //       the highest score.
-  //    3. Each stage's min is exactly 1 more than the stage before it's max.
-  //       (0-4, then 5-8, then 9-12... never 0-4 then 6-8, never 0-4 then 4-8.)
-  //
-  //  Points need to be whole numbers for this to work.
+  //  overlaps. Every "Yes" is worth 1 point and every "No" is worth 0, so
+  //  scores run from 0 up to the total number of questions (0 to 9 with
+  //  three sections of three).
+  //    1. The first stage's min is 0. The last stage's max is the number
+  //       of questions.
+  //    2. Each stage's min is exactly 1 more than the stage before it's max.
+  //       (0-2, then 3-5, then 6-7... never 0-2 then 4-5, never 0-2 then 2-5.)
   //
   //  If something doesn't line up, the app shows a message on screen saying
   //  exactly which numbers to fix, so you'll know before anyone scans the code.
   //  Always open the link once after changing questions or stages.
   // ----------------------------------------------------------
   stages: [
-    { name: "Curious",   min: 0,  max: 4,  description: "Watching AI closely and ready to take a first step." },
-    { name: "Exploring", min: 5,  max: 8,  description: "Trying AI in pockets and learning what works." },
-    { name: "Building",  min: 9,  max: 12, description: "Turning early wins into real momentum." },
-    { name: "Leading",   min: 13, max: 16, description: "Setting the pace for how HR adopts AI." }
+    { name: "Curious",       min: 0, max: 2, description: "Watching AI closely and ready to take a first step." },
+    { name: "Experimenting", min: 3, max: 5, description: "Trying AI in pockets and learning what works." },
+    { name: "Building",      min: 6, max: 7, description: "Turning early wins into real momentum." },
+    { name: "Leading",       min: 8, max: 9, description: "Setting the pace for how HR adopts AI." }
   ],
 
   // ----------------------------------------------------------
@@ -216,64 +213,48 @@ window.SCORECARD_CONFIG = {
 
   // ----------------------------------------------------------
   //  QUESTIONS
-  //  Each question has:
-  //    question: the text shown at the top of the screen
-  //    options:  the answer buttons. Each one has:
-  //                text:   what the button says
-  //                points: how many points that answer is worth
+  //  Questions are grouped into sections. Every question gets a big Yes
+  //  and a big No button. Yes = 1 point, No = 0 points.
   //
-  //  The max score is figured out automatically by adding up the
-  //  highest-point answer from every question.
+  //  >>> Write every question so that "Yes" is the more advanced answer. <<<
+  //  (For example "Do you use AI to screen resumes?" works. "Do you still
+  //  screen every resume by hand?" doesn't, because Yes would be the less
+  //  advanced answer and the score would come out backwards.)
   //
-  //  Keep answers short (under ~60 characters) so the buttons stay
-  //  easy to tap. 3 to 5 options per question feels best on a phone.
+  //  Each section has:
+  //    name:      shown above each question, like "Recruitment · 1 of 3",
+  //               and in the breakdown on the results screen
+  //    questions: the list of questions, each one in quotes, with commas between
   //
-  //  To add a question: copy one whole { question: ..., options: [...] },
-  //  block (including the comma after it) and paste it below the others.
+  //  You can use any number of sections and any number of questions in each.
+  //  If you change the total number of questions, update the stages above so
+  //  the last stage's max matches the new total.
   // ----------------------------------------------------------
-  questions: [
+  answerLabels: { yes: "Yes", no: "No" },
+
+  sections: [
     {
-      question: "Placeholder question 1: How often do you do the thing?",
-      options: [
-        { text: "Never", points: 0 },
-        { text: "Once in a while", points: 1 },
-        { text: "Most weeks", points: 2 },
-        { text: "Every day", points: 3 }
+      name: "Recruitment",
+      questions: [
+        "Recruitment question 1 goes here. (Yes = the more advanced answer.)",
+        "Recruitment question 2 goes here. (Yes = the more advanced answer.)",
+        "Recruitment question 3 goes here. (Yes = the more advanced answer.)"
       ]
     },
     {
-      question: "Placeholder question 2: How confident do you feel about it?",
-      options: [
-        { text: "Not at all", points: 0 },
-        { text: "A little", points: 1 },
-        { text: "Pretty confident", points: 2 },
-        { text: "Could teach it", points: 3 }
+      name: "Performance Management",
+      questions: [
+        "Performance Management question 1 goes here. (Yes = the more advanced answer.)",
+        "Performance Management question 2 goes here. (Yes = the more advanced answer.)",
+        "Performance Management question 3 goes here. (Yes = the more advanced answer.)"
       ]
     },
     {
-      question: "Placeholder question 3: Does your team talk about it?",
-      options: [
-        { text: "Not really", points: 0 },
-        { text: "Sometimes", points: 2 },
-        { text: "All the time", points: 4 }
-      ]
-    },
-    {
-      question: "Placeholder question 4: Pick the one that sounds most like you.",
-      options: [
-        { text: "Waiting to see what happens", points: 0 },
-        { text: "Curious but cautious", points: 1 },
-        { text: "Trying things out", points: 2 },
-        { text: "All in", points: 3 }
-      ]
-    },
-    {
-      question: "Placeholder question 5: Where do you want to be a year from now?",
-      options: [
-        { text: "Same place, honestly", points: 0 },
-        { text: "A little further along", points: 1 },
-        { text: "Way further along", points: 2 },
-        { text: "Leading the charge", points: 3 }
+      name: "Workforce Planning and Analysis",
+      questions: [
+        "Workforce Planning and Analysis question 1 goes here. (Yes = the more advanced answer.)",
+        "Workforce Planning and Analysis question 2 goes here. (Yes = the more advanced answer.)",
+        "Workforce Planning and Analysis question 3 goes here. (Yes = the more advanced answer.)"
       ]
     }
   ]
