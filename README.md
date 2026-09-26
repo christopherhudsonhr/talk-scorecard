@@ -27,8 +27,8 @@ Plain HTML, CSS, and JavaScript. No backend, no analytics, no cookies. Everythin
 
 1. On GitHub, go to the repo's **Settings > Pages**.
 2. Under **Build and deployment**, pick **Deploy from a branch**.
-3. Choose the branch (`main` once this is merged) and the `/ (root)` folder, then **Save**.
-4. After a minute or two your link shows up at the top of that page, something like `https://<your-username>.github.io/talk-scorecard/`.
+3. Choose the `main` branch and the `/ (root)` folder, then **Save**.
+4. After a minute or two your link shows up at the top of that page, currently `https://christopherhudsonhr.github.io/talk-scorecard/`.
 
 ## Trying it on your computer
 
